@@ -1,66 +1,69 @@
-/*
-	*	¹®Á¦
-	*		Çà·Ä A,  B¿¡ ´ëÇÑ C ¼±¾ğ¹®(ÃÊ±âÈ­ Æ÷ÇÔ)À» ÀÛ¼ºÇÏ¶ó.
-	*		(Çà·Ä Å¸ÀÔÀº SparseMatrix, Çà·ÄÀÇ °¢ ¿ä¼Ò´Â (row, col, val)·Î Ç¥Çö)
-	*		Èñ¼ÒÇà·Ä A B ¸¦ ¹Ş¾Æ¼­ ±× °á°ú¸¦ ¹İÈ¯ÇÏ´Â add ÇÔ¼ö¸¦ ÀÛ¼ºÇÏ¶ó.
-
-	*	¾Ë°í¸®Áò
-	*		1. Èñ¼ÒÇà·ÄÀÇ Ç¥Çö :
-	*			Èñ¼ÒÇà·ÄÀÇ Ç¥ÇöÀº value °¡ 0 ÀÌ ¾Æ´Ñ °ªÀ» ±¸Á¶Ã¼ ¹è¿­¿¡ ÀúÀåÀ» ÇÏ¸éµÈ´Ù.
-	*			±× µ¥ÀÌÅÍ´Â 0 ÀÌ ¾Æ´Ñ value ÀÇ row °ª, col °ªÀ» ÀúÀåÀ» ÇÏ°Ô µÈ´Ù.
-	*			{2,5,4} ·Î ÀúÀåÀÌ µÇ¾îÀÖÀ¸¸é, 2Çà 5¿­ÀÇ 4 ¶ó´Â °ªÀÌ ÀÖ´Ù´Â ¶æ ÀÌ´Ù.
+ï»¿/*
+	*	ë¬¸ì œ
+	*		í–‰ë ¬ A,  Bì— ëŒ€í•œ C ì„ ì–¸ë¬¸(ì´ˆê¸°í™” í¬í•¨)ì„ ì‘ì„±í•˜ë¼.
+	*		(í–‰ë ¬ íƒ€ì…ì€ SparseMatrix, í–‰ë ¬ì˜ ê° ìš”ì†ŒëŠ” (row, col, val)ë¡œ í‘œí˜„)
+	*		í¬ì†Œí–‰ë ¬ A B ë¥¼ ë°›ì•„ì„œ ê·¸ ê²°ê³¼ë¥¼ ë°˜í™˜í•˜ëŠ” add í•¨ìˆ˜ë¥¼ ì‘ì„±í•˜ë¼.
+	*	ì•Œê³ ë¦¬ì¦˜
+	*		1. í¬ì†Œí–‰ë ¬ì˜ í‘œí˜„ :
+	*			í¬ì†Œí–‰ë ¬ì˜ í‘œí˜„ì€ value ê°€ 0 ì´ ì•„ë‹Œ ê°’ì„ êµ¬ì¡°ì²´ ë°°ì—´ì— ì €ì¥ì„ í•˜ë©´ëœë‹¤.
+	*			ê·¸ ë°ì´í„°ëŠ” 0 ì´ ì•„ë‹Œ value ì˜ row ê°’, col ê°’ì„ ì €ì¥ì„ í•˜ê²Œ ëœë‹¤.
+	*			{2,5,4} ë¡œ ì €ì¥ì´ ë˜ì–´ìˆìœ¼ë©´, 2í–‰ 5ì—´ì˜ 4 ë¼ëŠ” ê°’ì´ ìˆë‹¤ëŠ” ëœ» ì´ë‹¤.
 	*
-	*		2. Èñ¼ÒÇà·Ä A + B ÀÇ µ¡¼À
-	*			Èñ¼ÒÇà·Ä A + B ÀÇ µ¡¼ÀÀº ±¸Á¶Ã¼ ¹è¿­À» °¡Á®¿Í¼­ ±× µÎ°¡Áö¸¦ ´õÇÏ¸é µÈ´Ù.
-	*			¿¹¸¦µé¾î A ´Â { 3, 3 ,1},{ 3 , 5 , 4 } °í B ´Â { 3, 3, 4 }, { 5, 4, 7 } ÀÌ¶ó°í °¡Á¤À» ÇÏÀÚ
-	*			»ı¼ºµÉ ¹è¿­À» C ¶ó°í ÇÏ¸é, A ÀÇ Ã¹¹øÂ°ÀÎ 3 3 1 °ú B ÀÇ Ã¹¹øÂ°ÀÎ 3 3 4 ¸¦ ºñ±³ ÇØ¾ß ÇÑ´Ù.
-	*			ÀÌ ÄÉÀÌ½º´Â A ÀÇ row col Àº 3 3 , B ÀÇ  rowl col Àº 3 3 ÀÌ¹Ç·Î A B value ¸¦ ´õÇÑ 5¸¦ C ¿¡ ÀúÀåÇÏ¸é µÈ´Ù.
-	*			{ 3, 3 ,5} ÀÌ·±½ÄÀ¸·Î ¸»ÀÌ´Ù.
-	*			A ÀÇ 3 3 1 BÀÇ 3 3 4 ´Â ´õÇØÁ³À¸¹Ç·Î ÀÌÁ¦ A ÀÇ 3 5 4 ¿Í B ÀÇ 5 4 7 À» ºñ±³ÇÏ¸é µÈ´Ù.
-	*			row °ªÀÌ °°À» °æ¿ì col °ªµµ ºñ±³ÇØ¾ßµÇ´Âµ¥ ÀÌ°æ¿ì row °ªÀÌ ´Ù¸£±â ¶§¹®¿¡ ´õ ÀÛÀº row ¸¦ °¡Áø
-	*			A ÀÇ °ªÀÌ ±×´ë·Î C ¹è¿­·Î µé¾î°¡¸é µÈ´Ù. C ¹è¿­Àº °ğ {3, 3, 5},{3, 5, 4} °¡ µÈ´Ù.
-	*			±×·³ A ÀÇ ¿ä¼ÒµéÀº ¸ğµÎ »ç¿ë‰ç±â ¶§¹®¿¡ ÀÌÁ¦, ³²Àº B ¹è¿­ÀÌ C ¹è¿­·Î ±×³É ³»·Á¿À¸é µÈ´Ù.
-	*			±×·¯³ª 3 * 4 , 5 * 2 ¹è¿­ÀÇ µ¡¼Àµµ °í·ÁÇØ¾ß ÇÑ´Ù. ÀÌ °æ¿ì row ´Â 5°¡ µÇ°í col Àº 4 °¡ µÈ´Ù.
-	*			Èñ¼ÒÇà·ÄÀÇ Å©±â°¡ ´Ù¸¦ °æ¿ì ´õÇÒ¼ö ¾ø´Ù Áï, Á¾·áÇØ¾ßÇÑ´Ù.
-	*			ÀÌ´Â °ğ add ÇÔ¼öÀÇ ¾Ë°í¸®ÁòÀÌ´Ù.
+	*		2. í¬ì†Œí–‰ë ¬ A + B ì˜ ë§ì…ˆ
+	*			í¬ì†Œí–‰ë ¬ A + B ì˜ ë§ì…ˆì€ êµ¬ì¡°ì²´ ë°°ì—´ì„ ê°€ì ¸ì™€ì„œ ê·¸ ë‘ê°€ì§€ë¥¼ ë”í•˜ë©´ ëœë‹¤.
+	*			ì˜ˆë¥¼ë“¤ì–´ A ëŠ” { 3, 3 ,1},{ 3 , 5 , 4 } ê³  B ëŠ” { 3, 3, 4 }, { 5, 4, 7 } ì´ë¼ê³  ê°€ì •ì„ í•˜ì
+	*			ìƒì„±ë  ë°°ì—´ì„ C ë¼ê³  í•˜ë©´, A ì˜ ì²«ë²ˆì§¸ì¸ 3 3 1 ê³¼ B ì˜ ì²«ë²ˆì§¸ì¸ 3 3 4 ë¥¼ ë¹„êµ í•´ì•¼ í•œë‹¤.
+	*			ì´ ì¼€ì´ìŠ¤ëŠ” A ì˜ row col ì€ 3 3 , B ì˜  rowl col ì€ 3 3 ì´ë¯€ë¡œ A B value ë¥¼ ë”í•œ 5ë¥¼ C ì— ì €ì¥í•˜ë©´ ëœë‹¤.
+	*			{ 3, 3 ,5} ì´ëŸ°ì‹ìœ¼ë¡œ ë§ì´ë‹¤.
+	*			A ì˜ 3 3 1 Bì˜ 3 3 4 ëŠ” ë”í•´ì¡Œìœ¼ë¯€ë¡œ ì´ì œ A ì˜ 3 5 4 ì™€ B ì˜ 5 4 7 ì„ ë¹„êµí•˜ë©´ ëœë‹¤.
+	*			row ê°’ì´ ê°™ì„ ê²½ìš° col ê°’ë„ ë¹„êµí•´ì•¼ë˜ëŠ”ë° ì´ê²½ìš° row ê°’ì´ ë‹¤ë¥´ê¸° ë•Œë¬¸ì— ë” ì‘ì€ row ë¥¼ ê°€ì§„
+	*			A ì˜ ê°’ì´ ê·¸ëŒ€ë¡œ C ë°°ì—´ë¡œ ë“¤ì–´ê°€ë©´ ëœë‹¤. C ë°°ì—´ì€ ê³§ {3, 3, 5},{3, 5, 4} ê°€ ëœë‹¤.
+	*			ê·¸ëŸ¼ A ì˜ ìš”ì†Œë“¤ì€ ëª¨ë‘ ì‚¬ìš©Â‰ë˜ê¸° ë•Œë¬¸ì— ì´ì œ, ë‚¨ì€ B ë°°ì—´ì´ C ë°°ì—´ë¡œ ê·¸ëƒ¥ ë‚´ë ¤ì˜¤ë©´ ëœë‹¤.
+	*			ê·¸ëŸ¬ë‚˜ ì´ row ì™€ col ì„ ë¹„êµí•˜ëŠ” ê²½ìš°ëŠ” ë„ˆë¬´  ë¹„íš¨ìœ¨ì ì´ë‹¤.
+	*			ê·¸ë ‡ê¸° ë–„ë¬¸ì— matrix.data[index].row * matrix.colSize + matrix.data[index].col ì„ ì‚¬ìš©í•´ì„œ ë¹„êµí•œë‹¤
+	*			ìœ„ ì‹ì„ matrix1Pos ì™€ matrix2Pos ë¼ ìƒê°í•˜ë©´ ë‘˜ì´ ê°™ì€ê²½ìš°ëŠ”, ìœ„ì¹˜ê°€ ê°™ì€ ê²½ìš°,
+	*			matrix1Pos > matrix2Pos ì¼ ê²½ìš° matrix2Pos ê°€ ë¨¼ì € ë“¤ì–´ê°€ì•¼ í•˜ëŠ”ê²½ìš°
+	*			ê·¸ ì™¸ì˜ ê²½ìš°ëŠ” matrix1Pos ê°€ ë“¤ì–´ê°€ì•¼ í•˜ëŠ” ê²½ìš°ë‹¤.
+	*			ê·¸ëŸ¬ë‚˜ 3 * 4 , 5 * 2 ë°°ì—´ì˜ ë§ì…ˆë„ ê³ ë ¤í•´ì•¼ í•œë‹¤.
+	*			í¬ì†Œí–‰ë ¬ì˜ í¬ê¸°ê°€ ë‹¤ë¥¼ ê²½ìš° ë”í• ìˆ˜ ì—†ë‹¤ ì¦‰, ì¢…ë£Œí•´ì•¼í•œë‹¤.
+	*			ì´ëŠ” ê³§ add í•¨ìˆ˜ì˜ ì•Œê³ ë¦¬ì¦˜ì´ë‹¤.
 	*
-	*		3. Èñ¼Ò Çà·ÄÀÇ Ãâ·Â
-	*			Èñ¼ÒÇà·Ä¿¡´Â terms ¿Í row ¿Í col, data °¡ ÇÊµå·Î ÀÌ·ïÁ®ÀÖ´Ù.
-	*			Èñ¼ÒÇà·ÄÀÇ n ¹øÂ° µ¥ÀÌÅÍ´Â ´ÙÀ½°ú °°ÀÌ Ç¥ÇöÀ» ÇÏ¸é µÈ´Ù.
+	*		3. í¬ì†Œ í–‰ë ¬ì˜ ì¶œë ¥
+	*			í¬ì†Œí–‰ë ¬ì—ëŠ” terms ì™€ row ì™€ col, data ê°€ í•„ë“œë¡œ ì´ë¤„ì ¸ìˆë‹¤.
+	*			í¬ì†Œí–‰ë ¬ì˜ n ë²ˆì§¸ ë°ì´í„°ëŠ” ë‹¤ìŒê³¼ ê°™ì´ í‘œí˜„ì„ í•˜ë©´ ëœë‹¤.
 	*			n = col * data[index].row + data[index].col
-	*			for ¹®À» »ç¿ëÇÏ¿© i < col * row ±îÁö ¹İº¹À» ÇÏ°í, ¸¸¾à i °ªÀÌ n °ú ÀÏÄ¡ÇÏ¸é
-	*			n ¹øÂ° µ¥ÀÌÅÍ¸¦ Ãâ·ÂÇÑ´Ù. °³ÇàÀº i ¸¦ col ·Î ³ª´©¾úÀ»¶§ ³ª´©¾î ¶³¾îÁö¸é °³ÇàÀ» ÇÏ¸é µÈ´Ù.
+	*			for ë¬¸ì„ ì‚¬ìš©í•˜ì—¬ i < col * row ê¹Œì§€ ë°˜ë³µì„ í•˜ê³ , ë§Œì•½ i ê°’ì´ n ê³¼ ì¼ì¹˜í•˜ë©´
+	*			n ë²ˆì§¸ ë°ì´í„°ë¥¼ ì¶œë ¥í•œë‹¤. ê°œí–‰ì€ i ë¥¼ col ë¡œ ë‚˜ëˆ„ì—ˆì„ë•Œ ë‚˜ëˆ„ì–´ ë–¨ì–´ì§€ë©´ ê°œí–‰ì„ í•˜ë©´ ëœë‹¤.
 	*
-	*		Ãâ·Â
-	*			Èñ¼ÒÇà·Ä A B ¸¦ ´õÇÑ C ÀÇ ¿ø·¡ ¹è¿­ÀÇ ÇüÅÂ·Î Ãâ·ÂÀ» ÇÏ¸é µÈ´Ù.
-	*			3 ¹ø ¾Ë°í¸®ÁòÀ» ÅëÇØ ±¸ÇöÀÌ °¡´ÉÇÏ´Ù.
+	*		ì¶œë ¥
+	*			í¬ì†Œí–‰ë ¬ A B ë¥¼ ë”í•œ C ì˜ ì›ë˜ ë°°ì—´ì˜ í˜•íƒœë¡œ ì¶œë ¥ì„ í•˜ë©´ ëœë‹¤.
+	*			3 ë²ˆ ì•Œê³ ë¦¬ì¦˜ì„ í†µí•´ êµ¬í˜„ì´ ê°€ëŠ¥í•˜ë‹¤.
 	*
-	*		ÇÔ¼ö
-	*			sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2) : matrix1 °ú matrix2 ÀÇ ÇÕÇÑ ±¸Á¶Ã¼ ¹İÈ¯
-	*			void print(sparse_matrix matrix); matrix ¹è¿­À» Ãâ·ÂÇÏ´Â ÇÔ¼ö
-
+	*		í•¨ìˆ˜
+	*			sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2) : matrix1 ê³¼ matrix2 ì˜ í•©í•œ êµ¬ì¡°ì²´ ë°˜í™˜
+	*			void print(sparse_matrix matrix); matrix ë°°ì—´ì„ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜
 */
 
 #include <stdio.h>
-#define MAX_TERMS 100 //data  ¹è¿­¿¡ µé¾î°¥ ÃÖ´ë °¹¼ö¸¦ ±âÈ£ »ó¼ö·Î ¼±¾ğ
-#define ROW 5 //ÇàÀÇ Å©±â¸¦ ±âÈ£ »ó¼ö·Î ¼±¾ğ
-#define COL 10 //¿­ÀÇ Å©±â¸¦ ±âÈ£ »ó¼ö·Î ¼±¾ğ
+#define MAX_TERMS 100 //data  ë°°ì—´ì— ë“¤ì–´ê°ˆ ìµœëŒ€ ê°¯ìˆ˜ë¥¼ ê¸°í˜¸ ìƒìˆ˜ë¡œ ì„ ì–¸
+#define ROW 5 //í–‰ì˜ í¬ê¸°ë¥¼ ê¸°í˜¸ ìƒìˆ˜ë¡œ ì„ ì–¸
+#define COL 10 //ì—´ì˜ í¬ê¸°ë¥¼ ê¸°í˜¸ ìƒìˆ˜ë¡œ ì„ ì–¸
 typedef struct {
-	int row;	//µ¥ÀÌÅÍÀÇ row ¸¦ ÀúÀåÇÑ´Ù.
-	int col;	//µ¥ÀÌÅÍÀÇ col À» ÀúÀåÇÑ´Ù.
-	int value;	//µ¥ÀÌÅÍ¸¦ ÀúÀåÇÑ´Ù.
-} element;	//±¸Á¶Ã¼¸¦ element ·Î Å¸ÀÔÀ» ÁöÁ¤ÇÑ´Ù.
+	int row;	//ë°ì´í„°ì˜ row ë¥¼ ì €ì¥í•œë‹¤.
+	int col;	//ë°ì´í„°ì˜ col ì„ ì €ì¥í•œë‹¤.
+	int value;	//ë°ì´í„°ë¥¼ ì €ì¥í•œë‹¤.
+} element;	//êµ¬ì¡°ì²´ë¥¼ element ë¡œ íƒ€ì…ì„ ì§€ì •í•œë‹¤.
 
 typedef struct {
-	element data[MAX_TERMS];	//MAX_TERMS ¸¸Å­ dataÀÇ ÃÖ´ë ¹è¿­ ±æÀÌ¸¦ ÁöÁ¤ÇØÁØ´Ù.
-	int rows;	//ÇàÀÇ ÃÑ Å©±â
-	int cols;	//¿­ÀÇ ÃÑ Å©±â
-	int terms;	//data ¹è¿­ÀÇ µé¾î°£ index ¼ö
+	element data[MAX_TERMS];	//MAX_TERMS ë§Œí¼ dataì˜ ìµœëŒ€ ë°°ì—´ ê¸¸ì´ë¥¼ ì§€ì •í•´ì¤€ë‹¤.
+	int rows;	//í–‰ì˜ ì´ í¬ê¸°
+	int cols;	//ì—´ì˜ ì´ í¬ê¸°
+	int terms;	//data ë°°ì—´ì˜ ë“¤ì–´ê°„ index ìˆ˜
 } sparse_matrix;
 
 
-sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2); //sparse_matrix 2°³¸¦ ¹Ş¾Æ ´õÇÏ°í ¹İÈ¯ÇÏ´Â add ÇÔ¼ö ¿øÇü Á¤ÀÇ
-void print(sparse_matrix matrix); //sparse_matrix ¸¦ ¹Ş¾Æ¼­ Ãâ·ÂÇÏ´Â print ÇÔ¼ö ¿øÇü Á¤ÀÇ
+sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2); //sparse_matrix 2ê°œë¥¼ ë°›ì•„ ë”í•˜ê³  ë°˜í™˜í•˜ëŠ” add í•¨ìˆ˜ ì›í˜• ì •ì˜
+void print(sparse_matrix matrix); //sparse_matrix ë¥¼ ë°›ì•„ì„œ ì¶œë ¥í•˜ëŠ” print í•¨ìˆ˜ ì›í˜• ì •ì˜
 
 int main(void) {
 
@@ -71,8 +74,8 @@ int main(void) {
 	{ 3, 9, 4 },
 	{ 4, 0, 5 },
 	{ 4, 4, 6 },
-	{ 4, 9, 7 } },5,10,7 };	//SparseA ±¸Á¶Ã¼¸¦ ¼±¾ğÇÏ°í ÃÊ±âÈ­ÈÄ, µ¥ÀÌÅÍ¸¦ ³Ö´Â´Ù.
-	//row ´Â 5 col Àº 10 terms ´Â 7ÀÌ´Ù.
+	{ 4, 9, 7 } },5,10,7 };	//SparseA êµ¬ì¡°ì²´ë¥¼ ì„ ì–¸í•˜ê³  ì´ˆê¸°í™”í›„, ë°ì´í„°ë¥¼ ë„£ëŠ”ë‹¤.
+	//row ëŠ” 5 col ì€ 10 terms ëŠ” 7ì´ë‹¤.
 	sparse_matrix SparseB = { {{ 0, 0, 5 },
 	{ 0, 4, 6 },
 	{ 0, 9, 7 },
@@ -82,89 +85,90 @@ int main(void) {
 	{ 2, 2, 1 },
 	{ 3, 5, 2 },
 	{ 4, 4, 1 },
-	{ 4, 9, 1 }},5,10,10 };	//SparseB ±¸Á¶Ã¼¸¦ ¼±¾ğÇÏ°í ÃÊ±âÈ­ÈÄ, µ¥ÀÌÅÍ¸¦ ³Ö´Â´Ù.
-	//row ´Â 5 col Àº 10 terms ´Â 10ÀÌ´Ù.
-	sparse_matrix SparseC = add(SparseA, SparseB); //SparseA ¿Í SparseB ¸¦ ´õÇØ¼­ SpareseC ¿¡ ÀúÀåÇÑ´Ù.
-	print(SparseC);	//ÀúÀåµÈ SparseC ¸¦ Ãâ·ÂÇÑ´Ù.
+	{ 4, 9, 1 }},5,10,10 };	//SparseB êµ¬ì¡°ì²´ë¥¼ ì„ ì–¸í•˜ê³  ì´ˆê¸°í™”í›„, ë°ì´í„°ë¥¼ ë„£ëŠ”ë‹¤.
+	//row ëŠ” 5 col ì€ 10 terms ëŠ” 10ì´ë‹¤.
+	sparse_matrix SparseC = add(SparseA, SparseB); //SparseA ì™€ SparseB ë¥¼ ë”í•´ì„œ SpareseC ì— ì €ì¥í•œë‹¤.
+	print(SparseC);	//ì €ì¥ëœ SparseC ë¥¼ ì¶œë ¥í•œë‹¤.
 
 
 }
 
 
 
-sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2) { //´õÇÏ°í ±¸Á¶Ã¼·Î ¹İÈ¯ÇÏ±â ¶§¹®¿¡ sparse_matrix ¸¦ ¾´´Ù.
-	sparse_matrix temp; //¹İÈ¯ÇÒ ±¸Á¶Ã¼ ¼±¾ğ 
+sparse_matrix add(sparse_matrix matrix1, sparse_matrix matrix2) { //ë”í•˜ê³  êµ¬ì¡°ì²´ë¡œ ë°˜í™˜í•˜ê¸° ë•Œë¬¸ì— sparse_matrix ë¥¼ ì“´ë‹¤.
+	sparse_matrix temp; //ë°˜í™˜í•  êµ¬ì¡°ì²´ ì„ ì–¸ 
 	int it = 0, i1 = 0, i2 = 0;
-	//temp ÀÇ index matrix1 ÀÇ index matrix2 ÀÇ index º¯¼ö it  i1 i2 ¸¦ ¼±¾ğÇÑ´Ù.
-	//index ÀÇ ÃÊ±â°ªÀº 0ÀÌ´Ù.
+	//temp ì˜ index matrix1 ì˜ index matrix2 ì˜ index ë³€ìˆ˜ it  i1 i2 ë¥¼ ì„ ì–¸í•œë‹¤.
+	//index ì˜ ì´ˆê¸°ê°’ì€ 0ì´ë‹¤.
 	if (matrix1.rows != matrix2.rows || matrix1.cols != matrix2.cols) {
-		printf("Èñ¼ÒÇà·Ä Å©±â ¿¡·¯");
+		printf("í¬ì†Œí–‰ë ¬ í¬ê¸° ì—ëŸ¬");
 		exit(1);
 	}
 	temp.rows = matrix1.rows;
-	//¾Ë°í¸®Áò ¼³¸í¿¡ ÀÖ´ø c ¹è¿­ÀÇ row ´Â matrix 1 ÀÇ row °¡ µÈ´Ù,..
+	//ì•Œê³ ë¦¬ì¦˜ ì„¤ëª…ì— ìˆë˜ c ë°°ì—´ì˜ row ëŠ” matrix 1 ì˜ row ê°€ ëœë‹¤,..
 
 	temp.cols = matrix1.cols;
-	//C¹è¿­ÀÇ col Àº a b ÀÇ col matrix1 ÀÇ col ÀÌ µÈ´Ù.
-	temp.terms = 0;	//µ¥ÀÌÅÍ°¡ 0 °³ »ğÀÔµÇ¾úÀ¸¹Ç·Î 0 ÀÌ´Ù.
+	//Cë°°ì—´ì˜ col ì€ a b ì˜ col matrix1 ì˜ col ì´ ëœë‹¤.
+	temp.terms = 0;	//ë°ì´í„°ê°€ 0 ê°œ ì‚½ì…ë˜ì—ˆìœ¼ë¯€ë¡œ 0 ì´ë‹¤.
 
 	int Matrix1Postion, Matrix2Postion;
 
 	while (matrix1.terms > i1 && matrix2.terms > i2) {
-		Matrix1Postion = matrix1.data[i1].row * matrix1.cols + matrix1.data[i1].col;
-		Matrix2Postion = matrix2.data[i2].row * matrix2.cols + matrix2.data[i2].col;
-		//matrix1ÀÇ µ¥ÀÌÅÍ º¸°ü¼ö°¡ i1 º¸´Ù Å¬¶§±îÁö¸¸ ÇØ¾ßµÈ´Ù, ±×·¸Áö ¾ÊÀ¸¸é data ÀÇ ÀÌ»óÇÑ °ªµµ ÀúÀåµÇ±â ¶§¹®
-		//¸¶Âù°¡Áö·Î i2 µµ matrix2 ÀÇ µ¥ÀÌÅÍ º¸°ü¼öº¸´Ù ÀÛÀ»¶§ ±îÁö¸¸ ÇØ¾ßµÈ´Ù.
+		//matrix1ì˜ ë°ì´í„° ë³´ê´€ìˆ˜ê°€ i1 ë³´ë‹¤ í´ë•Œê¹Œì§€ë§Œ í•´ì•¼ëœë‹¤, ê·¸ë ‡ì§€ ì•Šìœ¼ë©´ data ì˜ ì´ìƒí•œ ê°’ë„ ì €ì¥ë˜ê¸° ë•Œë¬¸
+		//ë§ˆì°¬ê°€ì§€ë¡œ i2 ë„ matrix2 ì˜ ë°ì´í„° ë³´ê´€ìˆ˜ë³´ë‹¤ ì‘ì„ë•Œ ê¹Œì§€ë§Œ í•´ì•¼ëœë‹¤.
+		Matrix1Postion = matrix1.data[i1].row * matrix1.cols + matrix1.data[i1].col; //ë°›ì•„ì˜¨ í¬ì†Œí–‰ë ¬ a matrix1 ì˜ ìœ„ì¹˜ 
+		Matrix2Postion = matrix2.data[i2].row * matrix2.cols + matrix2.data[i2].col; //ë°›ì•„ì˜¨ í¬ì†Œí–‰ë ¬ b matrix2 ì˜ ìœ„ì¹˜
 
-		if (Matrix1Postion == Matrix2Postion) {
-			temp.data[it].col = matrix1.data[i1].col;	//matrix1 ÀÌ³ª 2 ÀÇ col °ª ÇÒ´ç
-			temp.data[it].row = matrix1.data[i1].row;//matrix1 ÀÌ³ª 2 ÀÇ row °ª ÇÒ´ç
-			temp.data[it].value = matrix1.data[i1].value + matrix2.data[i2].value; //matrix1 °ú 2 ÀÇ ´õÇÑ°ª ÇÒ´ç
-			i1++, i2++, it++; //matrix1 ÀÇ i1 µ¥ÀÌÅÍ matrix2 ÀÇ i2 µ¥ÀÌÅÍ¸¦ »ç¿ëÇßÀ¸¹Ç·Î Áõ°¡
-			//it µµ ¸¶Âù°¡Áö·Î µ¥ÀÌÅÍ¸¦ ¿·¿¡ ÀúÀåÇØ¾ßÇÏ¹Ç·Î 1 Áõ°¡
+
+		if (Matrix1Postion == Matrix2Postion) { //ë°ì´í„°ê°€ ê°™ì€ row ê°’ col ê°’ì¼ ê²½ìš°
+			temp.data[it].col = matrix1.data[i1].col;	//matrix1 ì´ë‚˜ 2 ì˜ col ê°’ í• ë‹¹
+			temp.data[it].row = matrix1.data[i1].row;//matrix1 ì´ë‚˜ 2 ì˜ row ê°’ í• ë‹¹
+			temp.data[it].value = matrix1.data[i1].value + matrix2.data[i2].value; //matrix1 ê³¼ 2 ì˜ ë”í•œê°’ í• ë‹¹
+			i1++, i2++, it++; //matrix1 ì˜ i1 ë°ì´í„° matrix2 ì˜ i2 ë°ì´í„°ë¥¼ ì‚¬ìš©í–ˆìœ¼ë¯€ë¡œ ì¦ê°€
+			//it ë„ ë§ˆì°¬ê°€ì§€ë¡œ ë°ì´í„°ë¥¼ ì˜†ì— ì €ì¥í•´ì•¼í•˜ë¯€ë¡œ 1 ì¦ê°€
 
 		}
-		//row °¡ ´Ù¸¥ °æ¿ì, col °ªÀº º¼ ÇÊ¿ä°¡ ¾ø´Ù.
-		else if (Matrix1Postion > Matrix2Postion) {
-			//ÇØ´ç ÄÉÀÌ½º´Â 2 1 3 °ú 1 8 2 ÀÎ °æ¿ìÀÎµ¥
-			//1 8 2 °¡ ÀúÀåµÇ¾î¾ßµÇ¹Ç·Î matrix2.data[i2] Á¤º¸°¡ ±×´ë·Î °¡¾ßµÈ´Ù.
-			temp.data[it].col = matrix2.data[i2].col; //matrix2 ÀÇ col µ¥ÀÌÅÍ ÇÒ´ç
-			temp.data[it].row = matrix2.data[i2].row;	//matrix2 ÀÇ row µ¥ÀÌÅÍ ÇÒ´ç
-			temp.data[it].value = matrix2.data[i2].value;	//matrix2 ÀÇ value µ¥ÀÌÅÍ ÇÒ´ç
-			i2++, it++;	//matrix2 ÀÇ i2 ÀÎµ¦½º´Â »ç¿ëÇßÀ¸¹Ç·Î 1 Áõ°¡
-			//it µµ ¸¶Âù°¡Áö·Î µ¥ÀÌÅÍ¸¦ ¿·¿¡ ÀúÀåÇØ¾ßÇÏ¹Ç·Î 1 Áõ°¡
+		//row ê°€ ë‹¤ë¥¸ ê²½ìš°, col ê°’ì€ ë³¼ í•„ìš”ê°€ ì—†ë‹¤.
+		else if (Matrix1Postion > Matrix2Postion) { //ë°ì´í„°ê°€ ë‹¤ë¥¸ row ê°’ col ê°’ì¼ ê²½ìš°, matrix1 ì´ ë” ë’¤ì— ìˆëŠ”ê²½ìš°ë‹¤.
+			//í•´ë‹¹ ì¼€ì´ìŠ¤ëŠ” 2 1 3 ê³¼ 1 8 2 ì¸ ê²½ìš°ì¸ë°
+			//1 8 2 ê°€ ì €ì¥ë˜ì–´ì•¼ë˜ë¯€ë¡œ matrix2.data[i2] ì •ë³´ê°€ ê·¸ëŒ€ë¡œ ê°€ì•¼ëœë‹¤.
+			temp.data[it].col = matrix2.data[i2].col; //matrix2 ì˜ col ë°ì´í„° í• ë‹¹
+			temp.data[it].row = matrix2.data[i2].row;	//matrix2 ì˜ row ë°ì´í„° í• ë‹¹
+			temp.data[it].value = matrix2.data[i2].value;	//matrix2 ì˜ value ë°ì´í„° í• ë‹¹
+			i2++, it++;	//matrix2 ì˜ i2 ì¸ë±ìŠ¤ëŠ” ì‚¬ìš©í–ˆìœ¼ë¯€ë¡œ 1 ì¦ê°€
+			//it ë„ ë§ˆì°¬ê°€ì§€ë¡œ ë°ì´í„°ë¥¼ ì˜†ì— ì €ì¥í•´ì•¼í•˜ë¯€ë¡œ 1 ì¦ê°€
 
 		}
 		else {
-			//ÇØ´ç ÄÉÀÌ½º´Â 1 8 2 °ú 2 8 2 ÀÎ °æ¿ìÀÎµ¥
-			//1 8 2 °¡ ÀúÀåµÇ¾î¾ßµÇ¹Ç·Î matrix1.data[i2] Á¤º¸°¡ ±×´ë·Î °¡¾ßµÈ´Ù.
-			temp.data[it].col = matrix1.data[i1].col;//matrix1 ÀÇ col µ¥ÀÌÅÍ ÇÒ´ç
-			temp.data[it].row = matrix1.data[i1].row;//matrix1 ÀÇ row µ¥ÀÌÅÍ ÇÒ´ç
-			temp.data[it].value = matrix1.data[i1].value;//matrix1 ÀÇ value µ¥ÀÌÅÍ ÇÒ´ç
-			i1++, it++;//matrix2 ÀÇ i2 ÀÎµ¦½º´Â »ç¿ëÇßÀ¸¹Ç·Î 1 Áõ°¡
-			//it µµ ¸¶Âù°¡Áö·Î µ¥ÀÌÅÍ¸¦ ¿·¿¡ ÀúÀåÇØ¾ßÇÏ¹Ç·Î 1 Áõ°¡
+			//í•´ë‹¹ ì¼€ì´ìŠ¤ëŠ” 1 8 2 ê³¼ 2 8 2 ì¸ ê²½ìš°ì¸ë°
+			//1 8 2 ê°€ ì €ì¥ë˜ì–´ì•¼ë˜ë¯€ë¡œ matrix1.data[i2] ì •ë³´ê°€ ê·¸ëŒ€ë¡œ ê°€ì•¼ëœë‹¤.
+			temp.data[it].col = matrix1.data[i1].col;//matrix1 ì˜ col ë°ì´í„° í• ë‹¹
+			temp.data[it].row = matrix1.data[i1].row;//matrix1 ì˜ row ë°ì´í„° í• ë‹¹
+			temp.data[it].value = matrix1.data[i1].value;//matrix1 ì˜ value ë°ì´í„° í• ë‹¹
+			i1++, it++;//matrix2 ì˜ i2 ì¸ë±ìŠ¤ëŠ” ì‚¬ìš©í–ˆìœ¼ë¯€ë¡œ 1 ì¦ê°€
+			//it ë„ ë§ˆì°¬ê°€ì§€ë¡œ ë°ì´í„°ë¥¼ ì˜†ì— ì €ì¥í•´ì•¼í•˜ë¯€ë¡œ 1 ì¦ê°€
 		}
 
 
 	}
-	temp.terms = it; //it ÀÌ µ¥ÀÌÅÍ°¡ Áõ°¡µÉ¶§¸¶´Ù Áõ°¡µÇ¹Ç·Î terms ´Â it ¿Í °°´Ù.
-	return temp;//¹İÈ¯ÇÒ ±¸Á¶Ã¼ temp ¸¦ ¹İÈ¯ÇÑ´Ù.
+	temp.terms = it; //it ì´ ë°ì´í„°ê°€ ì¦ê°€ë ë•Œë§ˆë‹¤ ì¦ê°€ë˜ë¯€ë¡œ terms ëŠ” it ì™€ ê°™ë‹¤.
+	return temp;//ë°˜í™˜í•  êµ¬ì¡°ì²´ temp ë¥¼ ë°˜í™˜í•œë‹¤.
 
 }
-void print(sparse_matrix matrix) {//±¸Á¶Ã¼¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö print ÀÎÀÚ·Î´Â matrix ¸¦ ¹Ş´Â´Ù.
+void print(sparse_matrix matrix) {//êµ¬ì¡°ì²´ë¥¼ ì¶œë ¥í•˜ëŠ” í•¨ìˆ˜ print ì¸ìë¡œëŠ” matrix ë¥¼ ë°›ëŠ”ë‹¤.
 
-	int index = 0;	//matrix.data ÀÇ index ¸¦ ¼³Á¤ÇØÁØ´Ù.
+	int index = 0;	//matrix.data ì˜ index ë¥¼ ì„¤ì •í•´ì¤€ë‹¤.
 
 
 
-	for (int i = 0; i < matrix.rows; i++) {
-		for (int j = 0; j < matrix.cols; j++) {
-			if (matrix.data[index].row == i && matrix.data[index].col == j) {
-				printf("%d ", matrix.data[index].value);
-				index++;
+	for (int i = 0; i < matrix.rows; i++) { //ë°›ì•„ì˜¨ matrix ì˜ row ë§Œí¼,
+		for (int j = 0; j < matrix.cols; j++) { //ë°›ì•„ì˜¨ matrix ì˜ col ë§Œí¼ ë°˜ë³µí•œë‹¤.
+			if (matrix.data[index].row == i && matrix.data[index].col == j) { //ë§Œì•½ matrix data ì˜ index ë²ˆì¨°ì˜ row ì™€ col ì´ i j ì¼ ê²½ìš°
+				printf("%d ", matrix.data[index].value); //ë°ì´í„°ê°€ ìˆë‹¤ëŠ” ë§ì´ë¯€ë¡œ ì¶œë ¥í•œë‹¤.
+				index++; //index ë¥¼ ëŠ˜ë ¤ ì˜† ë°°ì—´ì„ í™•ì¸í•œë‹¤.
 			}
 			else {
-				printf("0 ");
+				printf("0 "); //ê·¸ë ‡ì§€ ì•Šìœ¼ë©´ 0ì„ ì¶œë ¥í•œë‹¤.
 			}
 		}
 		printf("\n");
