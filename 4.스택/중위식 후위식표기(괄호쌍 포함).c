@@ -79,27 +79,25 @@ int main(void)
 {
 	Stack stack;
 	initStack(&stack);
-	char String[] = "5*42*4/91";
+	char String[] = "5+4*(7+4)-5"; //5474+*+5-
 	char sym;
 	while ((sym = get_symbol(String)) != NULL) {
 		int token = pie(sym);
-		//printf("  심볼 : %c   token 리턴 %d  흠  : ", sym,token);
-		if (token == -1 && sym !=')') printf("%c", sym);
-
-		else if (token == 1 || token == 2 ) {
-			while (is_empty(stack) != 1 && pis(peek(stack)) >= token) {
-				printf("%c", pop(&stack));
-			}
-			push(&stack, sym);
-		}
-		else {
-			char left = pop(&stack);
-			printf("%c", left);
-			while (is_empty(stack) != 1 && left != '(') {
+		if (sym == ')') {
+			char left;
+			while ((left = pop(&stack)) != '(') {
 				printf("%c", left);
 			}
 		}
-
+		else if (pie(sym) == -1) {
+			printf("%c", sym);
+		}
+		else {
+			while (is_empty(stack) != 1 && pis(peek(stack)) >= pie(sym)) {
+				printf("%c", pop(&stack));
+			}
+			push(&stack, sym);
+		} 
 
 	}
 	while (is_empty(stack) != 1) {
