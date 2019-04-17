@@ -63,27 +63,36 @@ int pie(char sym) {
 	return -1;
 }
 
-
-
-int main(void)
-{
+void postfix(char *String) {
 	Stack stack;
 	initStack(&stack);
-	char String[] = "5*4-4/1";
+	
 	char sym;
+	int index = 0;
 	while ((sym = get_symbol(String)) != NULL) {
 		int token = pie(sym);
-		//printf("  심볼 : %c   token 리턴 %d  흠  : ", sym,token);
-		if (token == -1 ) printf("%c", sym);
-
+		;
+		if (token == -1) {
+			//printf("%c", sym);
+			String[index++] = sym;
+		}
 		else if (token == 1 || token == 2) {
 			while (is_empty(stack) != 1 && pie(peek(stack)) >= token) {
-				printf("%c", pop(&stack));
+				//printf("%c", );
+				String[index++] = pop(&stack);
 			}
 			push(&stack, sym);
 		}
 	}
 	while (is_empty(stack) != 1) {
-		printf("%c", pop(&stack));
+		String[index++] = pop(&stack);
+		//printf("%c", pop(&stack));
 	}
+}
+
+int main(void)
+{
+	char String[] = "5+3*2";
+	postfix(&String);
+	printf("%s", String);
 }
