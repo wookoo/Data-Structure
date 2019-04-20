@@ -12,7 +12,8 @@ polynomial Add(polynomial a, polynomial b) {
 	int degreeA = a.degree;
 	int degreeB = b.degree;
 	temp.degree = MAX(degreeA, degreeB);
-	while (indexA <= a.degree && indexB <= b.degree) {
+	while (indexA <= a.degree && indexB <= b.degree) {  
+	//수정하기 전 while 조건식은 indexA <= degreeA && indexB <= degreeB 였다... degreeA 와 B 는 while 을 돌면서 줄어드니 실수를 하면 안된다.
 		if (degreeA > degreeB) {
 			temp.coef[indexT++] = a.coef[indexA++];
 			degreeA--;
