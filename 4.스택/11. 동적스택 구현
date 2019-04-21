@@ -1,0 +1,84 @@
+#define MAX_SIZE 20
+#include <stdio.h>
+#include <stdlib.h>
+typedef int element; //elemnet 는 char 과 같다.
+
+typedef struct {
+	element *data; 
+	int top;
+	int capacity;
+} stack_type;
+
+typedef stack_type* stack_type_ptr; 
+
+void init(stack_type_ptr inputStack); 
+
+int is_empty(stack_type inputStack);
+int is_full(stack_type inputStack); 
+element pop(stack_type_ptr inputStack);
+void push(stack_type_ptr inputStack, element data);
+element peek(stack_type inputStack);
+
+int main() {
+	stack_type s;
+	init(&s);
+	for (int i = 5; i < 100; i++) {
+		push(&s, i);
+	}
+	while (!is_empty(s)) {
+		printf("%d \n", pop(&s));
+	}
+	free(s.data);
+
+}
+
+void push(stack_type_ptr inputStack, element data) {
+
+	if (is_full(*inputStack)) {
+		inputStack->capacity *= 2;
+		inputStack->data = (element *)realloc(inputStack->data, sizeof(element)*inputStack->capacity);
+	}
+	inputStack->top += 1;
+	inputStack->data[inputStack->top] = data;
+
+}
+
+void init(stack_type_ptr inputStack) {  //stack 구조체를 초기화한다. 
+	inputStack->top = -1; //초기화는 top 을 - 1 로 한다.
+	inputStack->capacity = 1; //최대 인덱스 수를 1 로 만든다.
+	inputStack->data = (element *)malloc(sizeof(element)*inputStack->capacity);
+}
+
+
+
+int is_empty(stack_type inputStack) { 
+	return ((inputStack.top == -1)); 
+}
+
+int is_full(stack_type inputStack) { 
+	return  (inputStack.top == (inputStack.capacity - 1)); 
+}
+
+
+element pop(stack_type_ptr inputStack) { 
+
+	if (is_empty(*inputStack)) {
+		printf("더이상 지울수 없습니다!");
+		exit(1);
+	}
+	else {
+		element returnData = inputStack->data[inputStack->top]; 
+		inputStack->top -= 1; 
+
+		return returnData; 
+	}
+
+}
+element peek(stack_type inputStack) {
+	if (is_empty(inputStack)) {
+		printf("값이 없습니다!");
+		exit(1);
+	}
+	return inputStack.data[inputStack.top];
+}
+
