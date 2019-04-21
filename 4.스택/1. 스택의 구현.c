@@ -1,11 +1,8 @@
 /*
 	* 문제
 	*	스택을 구현해보자
-
 	* 출력
 	*	1 2 3 을 push 하고 pop 을 3번 호출해서 결과값을 본다,
-
-
 	*알고리즘
 	*	스택을 구현을 하는 것 이다.
 	*	구조체를 사용하여 데이터가 들어가있는 배열과, 데이터의 인덱스 값을 저장한다.
@@ -14,22 +11,19 @@
 	*	pop 함수 : 스택이 비어있지 않았으면 데이터를 삭제한다. 비었으면 삭제하지 못한다. top 을 - 1
 	*	is_empty 함수 : stack 이 비었는지 확인한다. top 이 -1 이면 빈 스택이다.
 	*	is_full 함수 : stack 이 꽉찼는지 확인한다. top 이 구조체가 가진 배열의 MAX 면 꽉찬 스택이다.
-
-
 	*함수
 	*	void init(stack_type_ptr inputStack) : stack 을 초기화한다.
 	*	void push(stack_type_ptr inputStack, element data) : stack에 받아온 data 를 넣는다.
 	*	int is_empty(stack_type inputStack) : stack이 비었는지 확인한다.
 	*	int is_full(stack_type inputStack) : 스택이 꽉찼는지 확인한다.
 	*	element pop(stack_type_ptr inputStack) : 스택의 나중의 넣었던 값을 지우고 반환한다.
-
 */
 #define MAX_SIZE 20
 #include <stdio.h>
 typedef int element; //elemnet 는 char 과 같다.
 
 typedef struct {
-	element statck[MAX_SIZE]; //element 타입으로 저장할 statck 배열 선언
+	element data[MAX_SIZE]; //element 타입으로 저장할 data 배열 선언
 	int top;//몇번째 인덱스 까지 저장되어있는지 확인한다.
 } stack_type;
 
@@ -40,7 +34,7 @@ void push(stack_type_ptr inputStack, element data); //원본 stack 을 바꾸기
 int is_empty(stack_type inputStack);//원본 stack 을 바꾸면 안되기 때문에 stack_type 사용 (값 호출)
 int is_full(stack_type inputStack); //원본 stack 을 바꾸면 안되기 때문에 stack_type 사용 (값 호출)
 element pop(stack_type_ptr inputStack);//원본 stack 을 바꾸기 위해 stack_type_ptr 사용 (참조 호출)
-
+element peek(stack_type inputStack);//스택의 최상단 값을 확인하는 함수
 
 
 int main() {
@@ -71,7 +65,7 @@ void push(stack_type_ptr inputStack, element data) { //inputStack 에 data 를 �
 	}
 	else {//배열이 꽉차지 않았으므로 데이터를 밀어넣는다.
 		inputStack->top += 1;  //저장된 top 을 1 증가시키고
-		inputStack->statck[inputStack->top] = data; //그 top 에 저장된 걸 index 로 사용하여 그 인덱스에 data 를 넣는다.
+		inputStack->data[inputStack->top] = data; //그 top 에 저장된 걸 index 로 사용하여 그 인덱스에 data 를 넣는다.
 	}
 
 }
@@ -96,7 +90,7 @@ element pop(stack_type_ptr inputStack) { //마지막 넣었던 값을 지우고 
 		exit(1);
 	}
 	else {
-		element returnData = inputStack->statck[inputStack->top]; //inputStack->top 는 마지막 저장된 인덱스를 의미한다.
+		element returnData = inputStack->data[inputStack->top]; //inputStack->top 는 마지막 저장된 인덱스를 의미한다.
 		//그 인덱스가 가진 값을 returnData 에 할당한다.
 		inputStack->top -= 1; //데이터를 지울거므로  top 을 -1 한다
 
@@ -104,6 +98,11 @@ element pop(stack_type_ptr inputStack) { //마지막 넣었던 값을 지우고 
 	}
 
 }
-
-
+element peek(stack_type inputStack) {
+	if (is_empty(inputStack)) {
+		printf("값이 없습니다!");
+		exit(1);
+	}
+	return inputStack.data[inputStack.top];
+}
 
