@@ -63,7 +63,7 @@ int pis(char sym) {
 	}
 	return -1;
 }
-int pie(char sym) {
+int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 리턴값이 바뀐것을 볼 수 있다.
 	switch (sym) {
 	case '(': return 3;
 	case ')': return 0;
