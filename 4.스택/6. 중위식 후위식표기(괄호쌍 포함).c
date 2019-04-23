@@ -54,32 +54,28 @@ char get_symbol(char s[100]) {
 	}
 	return NULL;
 }
-
 int pis(char sym) {
 	switch (sym) {
-	case '(':return 0;
-	case '+':case '-': return 1;
-	case '*':case '%':case '/': return 2;
+	case '(': return 0;
+	case ')': return 3;
+	case '+':case'-': return 1;
+	case '*':case'%':case'/': return 2;
 	}
 	return -1;
 }
-
 int pie(char sym) {
 	switch (sym) {
-	case '(':return 3;
-	case '+':case '-': return 1;
-	case '*':case '%':case '/': return 2;
+	case '(': return 3;
+	case ')': return 0;
+	case '+':case'-': return 1;
+	case '*':case'%':case'/': return 2;
 	}
 	return -1;
 }
-
-
-
-int main(void)
-{
+int main() {
 	Stack stack;
 	initStack(&stack);
-	char String[] = "5+4*(7+4)-5"; //5474+*+5-
+	char String[] = "5+4*(7+4)-5";
 	char sym;
 	while ((sym = get_symbol(String)) != NULL) {
 		int token = pie(sym);
@@ -93,19 +89,16 @@ int main(void)
 			printf("%c", sym);
 		}
 		else {
-			while (is_empty(stack) != 1 && pis(peek(stack)) >= pie(sym)) {
+			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
 				printf("%c", pop(&stack));
 			}
 			push(&stack, sym);
-		} 
+		}
 
 	}
 	while (is_empty(stack) != 1) {
 		printf("%c", pop(&stack));
 	}
-
-
-
 
 
 }
