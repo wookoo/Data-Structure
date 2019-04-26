@@ -137,6 +137,9 @@ int paren_test(char s[]) {// balanced 한지 Not balanced 한지 확인하는 �
 
 
 	}
+	if(!is_empty(stack)){
+		return 0; //스택에 값이 
+	}
 	return IsTrue; //참 거짓을 반환을 해준다.
 }
 
