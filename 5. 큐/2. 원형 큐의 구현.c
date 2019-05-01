@@ -63,12 +63,20 @@ int main() {
 	q = &a;
 
 	init(q);
+	enque(q, 1);
+	display(q);
 	enque(q,2);
+	display(q);
 	deque(q);
+	display(q);
 	enque(q, 3);
+	display(q);
 	enque(q, 4);
+	display(q);
 	deque(q);
+	display(q);
 	enque(q, 5);
+	display(q);
 	enque(q, 6);
 	display(q);
 	
