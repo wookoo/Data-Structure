@@ -41,19 +41,36 @@ void enque(Circle_Que_ptr q, element data) {
 	q->rear = (q->rear + 1) % MAX_QUE_SIZE;
 	q->data[q->rear] = data;
 }
+void display(Circle_Que_ptr q) {
+	printf("원형 큐 (FRONT = %d, REAR = %d)    ", q->front, q->rear);
+	if (!is_empty(q)) {
+		int i = q->front;
+		do {
+			i = (i + 1) % MAX_QUE_SIZE;
+			printf("%d | ", q->data[i]);
+			if (i == q->rear) {
+				break;
+			}
+		} while (i != q->front);
+	}
+	printf("\n");
+}
+
 
 int main() {
-	Circle_Que q;
-	init(&q);
-	for (int j = 0; j < 100; j++) {
-		for (int i = 0; i < 9; i++) {
-			enque(&q, i);
-		}
-		while (!is_empty(&q)) {
-			printf("%d", deque(&q));
-		}
-		printf("\n");
-	}
+	Circle_Que a;
+	Circle_Que_ptr q;
+	q = &a;
+
+	init(q);
+	enque(q,2);
+	deque(q);
+	enque(q, 3);
+	enque(q, 4);
+	deque(q);
+	enque(q, 5);
+	enque(q, 6);
+	display(q);
 	
 
 }
