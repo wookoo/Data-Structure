@@ -66,9 +66,17 @@ int fibo(int n) {
 	for (int i = 0; i <= n; i++) {
 		if (i == 0) {
 			enque(q, 0);
+			if (i != n)
+				printf("%d ", 0);
+			else
+				return 0;
 		}
 		else if (i == 1) {
 			enque(q, 1);
+			if (i != n)
+				printf("%d ", 1);
+			else 
+				return 1;
 		}
 		else {
 			int first = deque(q);
@@ -76,6 +84,10 @@ int fibo(int n) {
 			int temp = first + second;
 			enque(q, second);
 			enque(q, temp);
+			if (i != n) {
+				printf("%d ", temp);
+			}
+			
 		}
 
 	}
@@ -87,7 +99,7 @@ int fibo(int n) {
 
 int main() {
 
-	printf("%d", fibo(7));
+	printf("%d", fibo(8));
 	
 
 }
