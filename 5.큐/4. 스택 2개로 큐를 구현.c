@@ -8,6 +8,12 @@ typedef struct {
 }stack;
 typedef stack* stack_ptr;
 
+typedef struct {
+	stack InputStack;
+	stack OutputStack;
+} Queue;
+
+typedef Queue* Queue_ptr;
 void init(stack_ptr inputStack);
 void initQueue(Queue_ptr q);
 void inQueue(Queue_ptr q, elemant data);
@@ -18,12 +24,7 @@ elemant peek(stack inputStack);
 void push(stack_ptr inputStack, elemant data);
 elemant pop(stack_ptr inputStack);
 
-typedef struct {
-	stack InputStack;
-	stack OutputStack;
-} Queue;
 
-typedef Queue* Queue_ptr;
 
 void init(stack_ptr inputStack) {
 	inputStack->top = -1;
@@ -34,7 +35,7 @@ void initQueue(Queue_ptr q) {
 	init(&(q->OutputStack));
 }
 
-void inQueue(Queue_ptr q,elemant data) {
+void inQueue(Queue_ptr q, elemant data) {
 	push(&q->InputStack, data);
 }
 elemant deQueue(Queue_ptr q) {
@@ -90,6 +91,6 @@ int main() {
 		inQueue(&q, i);
 	}
 
-	printf("%d\n",deQueue(&q));
+	printf("%d\n", deQueue(&q));
 	printf("%d", deQueue(&q));
 }
