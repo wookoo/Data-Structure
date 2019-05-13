@@ -29,8 +29,14 @@ elemant pop(stack_ptr inputStack);
 //함수 원형을 정의하는 부분 끝
 
 int main() {
-	for (int i = 0; i <= 10; i++) {
-		printf("%d ", fibo(i)); //피보나치 수열의 10 번째 항까지 구한후 출력
+	int times;
+	do {
+		printf("구할 피보나치 수열의 항을 구하세요 (양수) : ");
+		scanf("%d", &times);
+	} while (times < 0); //do while 문을 사용하여 음수가 들어오는 경우를 막는다.
+	
+	for (int i = 0; i <= times; i++) {
+		printf("%d ", fibo(i)); //피보나치 수열의 times 번째 항까지 구한후 출력
 	}
 	return 0;
 }
