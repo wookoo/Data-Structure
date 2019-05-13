@@ -27,7 +27,7 @@ int main() {
 	Deque a;
 	Deque_ptr dq = &a;
 	init(dq);
-	char String[] = "abcba";
+	char String[] = "abccba";
 	char sym;
 	int IsTrue = 1; //String 이 참인지 거짓인지 확인하기 위한 변수
 	while ((sym = get_symbol(String)) != NULL) {
@@ -48,10 +48,10 @@ int main() {
 	}
 
 	if (IsTrue) { //회문인 경우와 회문이 아닌 경우를 출력
-		printf("회문");
+		printf("%s 는회문", String);
 	}
 	else {
-		printf("회문 아님");
+		printf("%s 는 회문 아님", String);
 	}
 
 	return 0; //메인함수 종료
@@ -88,7 +88,7 @@ element delete_front(Deque_ptr dq) { //덱의 앞에서 값을 지우는 경우
 
 void add_rear(Deque_ptr dq, element data) {
 	if (is_full(dq)) {
-		error("덱이 가득 찼습니다."); 
+		error("덱이 가득 찼습니다.");
 	}
 	//덱이 가득차지  않았으면
 	dq->rear = (dq->rear + 1) % MAX_QUE_SIZE; //시계방향으로 덱을 돌리고
@@ -96,17 +96,17 @@ void add_rear(Deque_ptr dq, element data) {
 }
 
 void add_front(Deque_ptr dq, element data) {
-	if (is_full(dq)) { 
+	if (is_full(dq)) {
 		error("덱이 가득 찼습니다.");
 	}
 	//덱이 가득 차지 않았으면
 	dq->data[dq->front] = data; //값을 삽입하고
 	dq->front = (dq->front - 1 + MAX_QUE_SIZE) % MAX_QUE_SIZE; //시계 반대방향으로 덱을 돌림
-	
+
 }
 
 element delete_rear(Deque_ptr dq) {
-	if (is_empty(dq)) { 
+	if (is_empty(dq)) {
 		error("덱이 비었습니다!");
 	}
 	//덱이 비지 않았으면
