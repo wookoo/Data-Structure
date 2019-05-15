@@ -49,7 +49,7 @@ ListNode* delete_first(ListNode *head) {
 	return head;
 }
 ListNode* delete(ListNode *head, ListNode *pre) {
-	if (is_empty(head)) return NULL;
+	if (is_empty(pre)) return NULL;
 
 	ListNode *remove = pre->next;
 	pre->next = remove->next;
@@ -57,10 +57,39 @@ ListNode* delete(ListNode *head, ListNode *pre) {
 	return head;
 }
 
+ListNode* delete_last(ListNode *head) {
+	if (is_empty(head)) return NULL;
+	ListNode *remove = head;
+	ListNode *before = NULL;
+	while (remove->next != NULL) {
+		before = remove;
+		remove = remove->next;
+		
+	}
+	free(remove);
+	before->next = NULL;
+	return head;
+
+}
+
+ListNode* insert_last(ListNode *head, element data) {
+	ListNode *last = head;
+	while (last->next != NULL) {
+		last = last->next;
+	}
+	ListNode *Node = (ListNode *)malloc(sizeof(ListNode));
+	Node->next = NULL;
+	Node->val = data;
+	last->next = Node;
+	return head;
+}
+
+
 
 int main() {
 	ListNode *head;
 	head = NULL;
+	printNode(head);
 	for (int i = 10; i < 31; i+=10) {
 		head = insert_first(head, i);
 		printNode(head);
@@ -74,4 +103,11 @@ int main() {
 	printNode(head);
 	head = delete(head,head);
 	printNode(head);
+	head = insert_last(head, 60);
+	printNode(head);
+	head = insert_last(head, 70);
+	printNode(head);
+	head = delete_last(head);
+	printNode(head);
+
 }
