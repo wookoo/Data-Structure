@@ -77,7 +77,9 @@ void printList(ArrayList_ptr arr) {
 	for (int i = 0; i < arr->size; i++) {
 		printf("%d ", arr->array[i]);
 	}
+	printf("\tSize = %d", arr->size);
 	printf("\n");
+	
 }
 int main() {
 	ArrayList list;
