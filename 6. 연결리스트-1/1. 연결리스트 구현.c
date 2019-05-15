@@ -10,7 +10,9 @@ struct linkedNum {
 
 typedef struct linkedNum ListNode;
 
-
+int is_empty(ListNode *node) {
+	return node == NULL;
+}
 
 void printNode(ListNode *node) {
 
@@ -32,6 +34,7 @@ ListNode* insert_first(ListNode *head, element data) {
 }
 
 ListNode* insert(ListNode *head, ListNode *pre, element data) {
+	if (is_empty(pre)) return NULL;
 	ListNode *p = (ListNode *)malloc(sizeof(ListNode));
 	p->val = data;
 	p->next = pre->next;
@@ -39,31 +42,36 @@ ListNode* insert(ListNode *head, ListNode *pre, element data) {
 	return head;
 }
 ListNode* delete_first(ListNode *head) {
-	if (head == NULL) return NULL;
+	if(is_empty(head)) return NULL;
 	ListNode *remove = head;
 	head = head->next;
 	free(remove);
 	return head;
 }
-ListNode* delete(ListNode *head,ListNode *pre) {
-	ListNode *remove = pre;
-	pre = pre->next;
-	free(pre);
+ListNode* delete(ListNode *head, ListNode *pre) {
+	if (is_empty(head)) return NULL;
+
+	ListNode *remove = pre->next;
+	pre->next = remove->next;
+	free(remove);
 	return head;
 }
 
 
 int main() {
-	ListNode *head = (ListNode *)malloc(sizeof(ListNode));
+	ListNode *head;
 	head = NULL;
-	for (int i = 5; i > 0; i--) {
+	for (int i = 10; i < 31; i+=10) {
 		head = insert_first(head, i);
 		printNode(head);
 	}
-	for (int i = 5; i > 0; i--) {
-		head = delete_first(head);
-		printNode(head);
-	}
-	
-	
+
+	head = insert(head, head, 40);
+	printNode(head);
+	head = insert(head, head, 50);
+	printNode(head);
+	head = delete_first(head);
+	printNode(head);
+	head = delete(head,head);
+	printNode(head);
 }
