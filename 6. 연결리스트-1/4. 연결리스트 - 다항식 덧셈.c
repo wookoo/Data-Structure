@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,16 +17,16 @@ int is_empty(ListNode *node) {
 }
 
 
-ListNode* insert_last(ListNode *head, element coef,element expon) {
+ListNode* insert_last(ListNode *head, element coef, element expon) {
 	ListNode *last = head;
-	while (last!= NULL && last->next != NULL) {
+	while (last != NULL && last->next != NULL) {
 		last = last->next;
 	}
 	ListNode *Node = (ListNode *)malloc(sizeof(ListNode));
 	Node->next = NULL;
 	Node->coef = coef;
 	Node->expon = expon;
-	
+
 	if (head == NULL) {
 		return Node;
 	}
@@ -45,7 +46,7 @@ ListNode* AddPoly(ListNode *first, ListNode *second) {
 
 			firstTemp = firstTemp->next;
 			secondTemp = secondTemp->next;
-		
+
 
 		}
 		else if (firstTemp->expon > secondTemp->expon) {
@@ -85,8 +86,11 @@ void printNode(ListNode *node) {
 		printf("%dX^%d+", temp->coef, temp->expon);
 		temp = temp->next;
 	}
-	if (temp != NULL) {
+	if (temp != NULL && temp->expon != 0) {
 		printf("%dX^%d", temp->coef, temp->expon);
+	}
+	else if(temp->expon == 0){
+		printf("%d", temp->coef);
 	}
 	printf("\n");
 }
@@ -112,18 +116,19 @@ int main() {
 	p->coef = 3;
 	p->expon = 12;
 	p->next = NULL;
-//	printNode(p);
+	//	printNode(p);
 
 	p = insert_last(p, 2, 8);
 	//printNode(p);
-	p = insert_last(p, 5, 3);
+
 	p = insert_last(p, 1, 0);
 	printNode(p);
 
 	ListNode *q;
 	q = NULL;
-	q = insert_last(q, 5, 12);
-	q = insert_last(q, 5, 6);
+	q = insert_last(q, 8, 12);
+	q = insert_last(q, -3, 10);
+	q = insert_last(q, 10, 6);
 	printNode(q);
 
 	ListNode *result = AddPoly(p, q);
