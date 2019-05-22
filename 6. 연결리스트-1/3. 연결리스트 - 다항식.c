@@ -15,7 +15,7 @@ int is_empty(ListNode *node) {
 	return node == NULL;
 }
 
-
+/*
 ListNode* insert_last(ListNode *head, element coef,element expon) {
 	ListNode *last = head;
 	while (last->next != NULL) {
@@ -28,6 +28,19 @@ ListNode* insert_last(ListNode *head, element coef,element expon) {
 	last->next = Node;
 	return head;
 }
+*/
+
+ListNode* insert_last(ListNode *head,ListNode *input) {
+	ListNode *last = head;
+	while (last->next != NULL) {
+		last = last->next;
+	}
+	
+	last->next = input;
+	return head;
+}
+
+
 
 void printNode(ListNode *node) {
 
@@ -65,7 +78,14 @@ int main() {
 	p->expon = 12;
 	p->next = NULL;
 	printNode(p);
-	p = insert_last(p, 2, 8);
+	//p = insert_last(p, 2, 8); //주석 처리 된 insert_last 함수를 이용할 경우
+	
+	ListNode *r = (ListNode *)malloc(sizeof(ListNode)); //주석처리 안된 insert_last 함수를 이용할 경우
+	r->coef = 2;
+	r->expon = 8;
+	r->next = NULL;
+	p = insert_last(p, r);	
+	
 	printNode(p);
 
 	ListNode *q = (ListNode *)malloc(sizeof(ListNode));
