@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 typedef int element;
 
 struct linkedNum {
@@ -91,15 +92,53 @@ ListNode* gen_array(ListNode *head, int data) {
 	srand(time(NULL));
 	for (int i = 0; i < data; i++) {
 		head = insert_last(head, rand() % 101 + 1);
+		//head = insert_last(head, i);
 	}
 	return head;
-	
+
 }
 
+void swapData(ListNode *first, ListNode *second) {
+	element temp = first->val;
+	first->val = second->val;
+	second->val = temp;
+}
+void swapNode(ListNode** Node1, ListNode** Node2) {
+	ListNode *temp;
+	temp = *Node1;
+	*Node1 = *Node2;
+	*Node2 = temp;
+
+}
+
+ListNode* gen_sortedList(ListNode *head, int data) {
+	ListNode *compare = head;
+	ListNode *temp = compare;
+	for (int i = 0; i < data; i++) {
+		for (int j = 0; j < data; j++) {
+			if (compare->val < temp->val) {
+				swapNode(compare, temp);
+		
+			}
+			temp = temp->next;
+		}
+		compare = compare->next;
+		temp = head;
+	}
+
+	return head;
+}
 
 
 int main() {
 	ListNode *head = NULL;
-	head = gen_array(head,30);
+	head = gen_array(head, 30);
 	printNode(head);
+	head = gen_sortedList(head, 30);
+	//printNode(head);
+	//swap(head, head->next);
+	printNode(head);
+	free(head);
 }
+
+
