@@ -103,6 +103,8 @@ void swapData(ListNode *first, ListNode *second) {
 	first->val = second->val;
 	second->val = temp;
 }
+
+
 void swapNode(ListNode** Node1, ListNode** Node2) {
 	ListNode *temp;
 	temp = *Node1;
@@ -117,6 +119,7 @@ ListNode* gen_sortedList(ListNode *head, int data) {
 	for (int i = 0; i < data; i++) {
 		for (int j = 0; j < data; j++) {
 			if (compare->val < temp->val) {
+				
 				swapNode(compare, temp);
 		
 			}
@@ -126,19 +129,40 @@ ListNode* gen_sortedList(ListNode *head, int data) {
 		temp = head;
 	}
 
+	printNode(head);
+
 	return head;
 }
 
 
 int main() {
+	
 	ListNode *head = NULL;
 	head = gen_array(head, 30);
 	printNode(head);
 	head = gen_sortedList(head, 30);
 	//printNode(head);
 	//swap(head, head->next);
+
+	
 	printNode(head);
 	free(head);
+	
+	
+	ListNode *temp = (ListNode *)malloc(sizeof(ListNode));
+
+	temp->val = 2;
+	ListNode *j = (ListNode *)malloc(sizeof(ListNode));
+
+	j->val = 5;
+	temp->next = j;
+	j->next = NULL;
+	printf("temp k val %d \n", temp->val);
+	printf("j k val %d \n", j->val);
+	swapNode(&temp, &j);
+	printf("temp k val %d  \n", temp->val);
+	printf("j k val %d \n", j->val);
+	free(temp);
 }
 
 
