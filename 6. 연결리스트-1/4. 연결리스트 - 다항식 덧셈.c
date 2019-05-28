@@ -81,16 +81,38 @@ ListNode* AddPoly(ListNode *first, ListNode *second) {
 void printNode(ListNode *node) {
 
 	struct linkedNum *temp = node;
+	int first = 1;
 	while (temp->next != NULL)
 	{
-		printf("%dX^%d+", temp->coef, temp->expon);
+		if (first) {
+			printf("%dX^%d", temp->coef, temp->expon);
+			first = 0;
+		}
+		else {
+			printf("%+dX^%d", temp->coef, temp->expon);
+		}
+		
 		temp = temp->next;
 	}
 	if (temp != NULL && temp->expon != 0) {
-		printf("%dX^%d", temp->coef, temp->expon);
+		if (first) {
+			printf("%dX^%d", temp->coef, temp->expon);
+			first = 0;
+		}
+		else {
+			printf("%+dX^%d", temp->coef, temp->expon);
+		}
+		
 	}
-	else if(temp->expon == 0){
-		printf("%d", temp->coef);
+	else if (temp->expon == 0) {
+		if (first) {
+			printf("%d", temp->coef);
+			first = 0;
+		}
+		else {
+			printf("%+d", temp->coef);
+		}
+		
 	}
 	printf("\n");
 }
