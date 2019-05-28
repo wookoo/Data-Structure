@@ -12,13 +12,13 @@ struct linkedNum {
 typedef struct linkedNum ListNode;
 
 int is_empty(ListNode *list) {
-	return (list == NULL);
+	return (list == NULL); //리스트가 NULL 이면 1 NULL 이 아니면 0 반환
 }
 
 void display(ListNode *node) {
 
 	struct linkedNum *temp = node;
-	while (temp != NULL)
+	while ( !is_empty(temp))
 	{
 		printf("%d->", temp->val);
 		temp = temp->next;
@@ -39,16 +39,16 @@ ListNode* insert_last(ListNode *head, element data) {
 	if (is_empty(head)) { //헤드 노드가 비어있으면 생성된 Node 반환
 		return Node;
 	}
-	last->next = Node; //헤드 노드가 비어있지 않으면 Node 의 
+	last->next = Node; //헤드 노드가 비어있지 않으면 마지막 노드에 생성된 노드를 붙임
 	return head;
 }
 
 
 void gen_array(int *a, int data) {
-
-	srand(time(NULL));
+	
+	srand(time(NULL)); //랜덤 시드 초기화
 	for (int i = 0; i < data; i++) {
-		a[i] = abs(i - data);
+		a[i] = rand() % 101; 
 	}
 }
 
@@ -86,11 +86,12 @@ void quick_sort(int left, int right, int* a) {
 }
 
 ListNode* gen_sortedList(int *a, int data) {
-
-	quick_sort(0, data - 1, a);
-	ListNode *head = NULL;
+	
+	quick_sort(0, data - 1, a); //인자로 받은 a 배열을 퀵소트를 사용하여 정렬한다
+	ListNode *head = NULL; //반환할 노드를 생성 하고
 	for (int i = 0; i < data; i++) {
-		head = insert_last(head, a[i]);
+		head = insert_last(head, a[i]); //반환할 노드 마지막에 정렬된 a 배열을 하나 하나 가져와서 노드를 생성하고
+		//생성된 노드를 맨 뒤에 붙인다
 	}
 
 
@@ -98,15 +99,11 @@ ListNode* gen_sortedList(int *a, int data) {
 }
 
 
-int is_empty(ListNode *list) {
-	return list == NULL; //리스트가 NULL 이면 1 NULL 이 아니면 0 반환
-}
-
 ListNode* delete(ListNode *list, element item) {
 
 
 
-	if (list != NULL && list->val == item) { //처음 노드가 NULL 이 아니고 , 처음 노드가 item 일때
+	if ( !is_empty(list) && list->val == item) { //처음 노드가 비지 않았고 , 처음 노드가 item 일때
 		ListNode *remove = list; //지울 노드는 처음 노드
 		ListNode *result = list->next; //반환될 노드는 처음 노드의 다음 노드
 		free(remove); //처음 노드를 지우고
@@ -139,7 +136,7 @@ ListNode* delete(ListNode *list, element item) {
 ListNode* clear_list(ListNode *list) { //노드를 초기화 하는 함수
 	ListNode *remove = list; //지울 노드
 	ListNode *temp = list; //노드를 임시로 저장
-	while (temp != NULL) { //임시 노드가 NULL 이 아닐때 까지 반복
+	while ( !is_empty(temp) ) { //임시 노드가 비지 않을때 까지 반복
 		temp = temp->next; //임시 노드는 옆으로 이동한다
 		free(remove); // 이동하기 전의 임시노드는 지워야 하므로 free 
 		remove = temp; //지울 노드는 다음 노드가 된다.
@@ -153,7 +150,7 @@ int is_in_list(ListNode *list,element data) { //해당 데이터가 배열 안�
 	}
 	//list 가 NULL 이 아닌 경우 아래들이 수행됨
 	ListNode *temp = list; //ListNode 포인터를 담는 temp 변수에 list 를 할당
-	while (temp != NULL) { //temp 가 비어있지 않을때 까지 반복한다
+	while ( !is_empty(temp)) { //temp 가 비어있지 않을때 까지 반복한다
 		if (temp->val == data) { //temp 가 가진 val 필드가 data 와 같은 경우
 			return 1; //값이 있으므로 1 이 반환되고 함수 끝
 		}
@@ -169,7 +166,7 @@ int get_length(ListNode *list) { //연결리스트의 길이를 구하는 get__l
 	//아래 부분은 매개변수인 list 가 NULL 이 아닌 경우 수행된다
 	int size = 0; //길이는 일단 0으로 한다
 	ListNode *temp = list; //ListNode 포인터를 담는 temp 변수에 list 를 할당한다
-	while (temp != NULL) { //temp 가 NULL 이 아닐때 까지 반복한다
+	while ( !is_empty(temp)) { //temp 가 비지 않았을때까지 반복
 		temp = temp->next; //temp 는 다음 노드로 이동시키고
 		size++; //사이즈를 1 증가시킨다
 	}
@@ -196,6 +193,7 @@ ListNode* add(ListNode *list, element item) {
 
 int main() {
 	int a[100];
+	
 	gen_array(a, 30);
 	print_array(a, 30);
 	ListNode *list;
@@ -204,10 +202,10 @@ int main() {
 	ListNode *temp = list;
 	list = clear_list(list);
 	display(list);
-	display(temp);
+	
 	printf("%d\n", is_in_list(list, 5));
 	
-	printf("%d", get_length(list));
+	printf("%d %d", get_length(list),!0);
 	
 
 }
