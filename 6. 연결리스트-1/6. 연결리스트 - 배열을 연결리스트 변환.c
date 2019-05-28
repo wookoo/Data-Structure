@@ -16,7 +16,7 @@ int is_in_list(ListNode *list, element data); //노드 안에 값이 있나 검�
 int is_empty(ListNode *list); //노드가 비었나 검사하는 함수 원형 정의
 void display(ListNode *list); //노드를 출력하는 함수 원형 정의
 ListNode* insert_last(ListNode *list, element data); //마지막에 값을 노드를 추가하는 함수 원형 정의
-void gen_array(int *a, int data); //배열을 생성하는 함수 원형 정의
+void gen_array(int *a, int data); //랜덤한 수를 생성하는 함수 원형 정의
 void print_array(int *arr, int size); //배열을 출력하는 함수 원형 정의
 void swap(int *a, int *b); //스왑 함수 원형 정의
 void quick_sort(int left, int right, int* a); //퀵정렬 함수 원형 정의
@@ -26,6 +26,33 @@ ListNode* clear_list(ListNode *list); //연결리스트를 초기화 하는 함�
 int get_length(ListNode *list); //연결 리스트의 길이를 구하는 함수 원형 정의
 int is_full(ListNode *list);  //연결리스트의 포화 검사 함수 원형 정의
 ListNode* add(ListNode *list, element item); //정렬된 연결리스트의 값을 추가하는 함수 원형 정의
+
+
+int main() {
+	int a[100]; //배열 선언
+	gen_array(a, 30); //배열의 30개 요소만큼 랜덤값을 추가한다
+	print_array(a, 30); //잘 추가되었나 출력하고
+	ListNode *list = NULL; //동적 연결리스트 생성
+	list = gen_sortedList(a, 30); //a 배열을 정렬하고 연결리스트로 만든다
+	display(list); //정상적으로 추가 됬나 출력
+
+
+
+	printf("연결리스트에서 -7 3번 추가\n");
+	for (int i = 0; i < 3; i++) {
+		list = add(list, -7); //연결리스트에 -7 이라는 값을 정렬된 상태로 추가한다
+	}
+	
+	display(list); //-7 이 잘 들어갔는지 출력한다
+
+	list = delete(list, -7); //리스트에서 -7라는 숫자 몽땅 지운다.
+	printf("연결리스트에서 -7 삭제\n");
+	display(list); //연결리스트에서 -7가 삭제됬는지 출력
+	
+	
+
+}
+
 
 
 int is_in_list(ListNode *list, element data) { //해당 데이터가 배열 안에 있는지 검사하는 항목
@@ -230,22 +257,3 @@ ListNode* add(ListNode *list, element item) {
 
 
 
-int main() {
-	int a[100];
-
-	gen_array(a, 30);
-	print_array(a, 30);
-	ListNode *list;
-	list = gen_sortedList(a, 30);
-	display(list);
-	ListNode *temp = list;
-	printf("델리트 수행\n");
-	list = delete(list, 2);
-	display(list);
-
-	list = add(list, 0);
-	display(list);
-
-
-
-}
