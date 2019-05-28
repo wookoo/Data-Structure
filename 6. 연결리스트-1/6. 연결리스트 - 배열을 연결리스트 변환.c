@@ -22,7 +22,7 @@ void swap(int *a, int *b); //스왑 함수 원형 정의
 void quick_sort(int left, int right, int* a); //퀵정렬 함수 원형 정의
 ListNode* gen_sortedList(int *a, int data); //정렬된 연결리스트를 반환하는 함수 원형 정의
 ListNode* delete(ListNode *list, element item); //연결리스트에서 값을 지우는 함수 원형 정의
-ListNode* clear_list(ListNode *list); //연결리스트를 초기화 하는 함수 원형 정의
+ListNode* clear(ListNode *list); //연결리스트를 초기화 하는 함수 원형 정의
 int get_length(ListNode *list); //연결 리스트의 길이를 구하는 함수 원형 정의
 int is_full(ListNode *list);  //연결리스트의 포화 검사 함수 원형 정의
 ListNode* add(ListNode *list, element item); //정렬된 연결리스트의 값을 추가하는 함수 원형 정의
@@ -42,14 +42,17 @@ int main() {
 	for (int i = 0; i < 3; i++) {
 		list = add(list, -7); //연결리스트에 -7 이라는 값을 정렬된 상태로 추가한다
 	}
-	
+
 	display(list); //-7 이 잘 들어갔는지 출력한다
 
 	list = delete(list, -7); //리스트에서 -7라는 숫자 몽땅 지운다.
 	printf("연결리스트에서 -7 삭제\n");
 	display(list); //연결리스트에서 -7가 삭제됬는지 출력
-	
-	
+	list = clear(list);
+	printf("연결리스트클리어\n");
+	display(list);
+
+
 
 }
 
@@ -77,7 +80,7 @@ int is_empty(ListNode *list) {
 
 void display(ListNode *list) { //연결리스트를 출력하는 함수
 
-	struct linkedNum *temp = list; //임시배열 temp 선언
+	ListNode *temp = list; //임시배열 temp 선언
 	while (!is_empty(temp)) //temp  가 비어있지 않을때까지
 	{
 		printf("%d->", temp->val); //temp 가 가진 값 출력
@@ -108,7 +111,7 @@ void gen_array(int *a, int data) {
 
 	srand(time(NULL)); //랜덤 시드 초기화
 	for (int i = 0; i < data; i++) {
-		
+
 		a[i] = rand() % 101;  //a 의 i 번째 인덱스 랜덤 값 할당
 	}
 }
@@ -150,7 +153,7 @@ void quick_sort(int left, int right, int* a) { //퀵정렬, 인자로는 왼쪽�
 
 ListNode* gen_sortedList(int *a, int data) {
 
-	quick_sort(0,data-1,a);
+	quick_sort(0, data - 1, a);
 	ListNode *head = NULL; //반환할 노드를 생성 하고
 	for (int i = 0; i < data; i++) {
 		head = insert_last(head, a[i]); //반환할 노드 마지막에 정렬된 a 배열을 하나 하나 가져와서 노드를 생성하고
@@ -164,14 +167,14 @@ ListNode* gen_sortedList(int *a, int data) {
 
 ListNode* delete(ListNode *list, element item) {
 
-	do{ //do while 문을 사용하여 1번이상 무조건 수행하게 한다
+	do { //do while 문을 사용하여 1번이상 무조건 수행하게 한다
 
 		if (!is_empty(list) && list->val == item) { //처음 노드가 비지 않았고 , 처음 노드가 item 일때
 			ListNode *remove = list; //지울 노드는 처음 노드
 			ListNode *result = list->next; //반환될 노드는 처음 노드의 다음 노드
 			list = result;
 			free(remove); //처음 노드를 지우고
-			
+
 			//return result; //반환될 노드를 반환한다
 		}
 		else if (is_empty(list)) { //list 가 비어있으면 지울수 없으므로
@@ -191,19 +194,19 @@ ListNode* delete(ListNode *list, element item) {
 			// 1 2 3 이면 1 (2) 3 꼴
 			free(remove); //현재 노드를 free 로 반환한다.
 		}
-		else if ( !is_empty(remove) && remove->val == item && !is_empty(remove->next)) {
+		else if (!is_empty(remove) && remove->val == item && !is_empty(remove->next)) {
 			//현재노드가 비지 않았고, 다음노드도 비지 않았고, 현재 노드가 item 과 같으면
 			list = remove->next; //list 는remove 의 옆노드로 간다
 			free(remove); //현재 노드 free
 		}
-	
+
 	} while (is_in_list(list, item)); //입력받은 item 이 입력받은 list 에 없을때 까지 반복한다
 	return list; //변경된 list 반환
 
 }
 
 
-ListNode* clear_list(ListNode *list) { //노드를 초기화 하는 함수
+ListNode* clear(ListNode *list) { //노드를 초기화 하는 함수
 	ListNode *remove = list; //지울 노드
 	ListNode *temp = list; //노드를 임시로 저장
 	while (!is_empty(temp)) { //임시 노드가 비지 않을때 까지 반복
@@ -236,24 +239,21 @@ int is_full(ListNode *list) {  //연결리스트의 포화 검사 함수
 }
 
 ListNode* add(ListNode *list, element item) {
-	int size = get_length(list) ;
+	int size = get_length(list);
 	ListNode *temp = list; //임시 노드 선언
 	//인자로 받은 리스트에서 길이를 받아온다. 값을 늘려줄거기 때문에 1을 늘려준다
-	int *arr = (int *)malloc(sizeof(int)*size+1); //arr 배열을 만들고 동적할당을 진행한다.
+	int *arr = (int *)malloc(sizeof(int)*size + 1); //arr 배열을 만들고 동적할당을 진행한다.
 	for (int i = 0; i < size; i++) { //연결리스트가 가진 길이만큼 반복
 		arr[i] = temp->val; //arr 배열에 temp 가 가진 값 할당
 		temp = temp->next; //temp 는 옆자리로 옮긴다
 	}
 	arr[size] = item; //arr 의 마지막 인덱스에 인자로 받은 item 할당
-	
-	quick_sort(0, size,arr); //퀵정렬을 사용하여 arr 배열 정렬
-	list = clear_list(list);//리스트 초기화
+
+	quick_sort(0, size, arr); //퀵정렬을 사용하여 arr 배열 정렬
+	list = clear(list);//리스트 초기화
 	for (int i = 0; i <= size; i++) {
 		list = insert_last(list, arr[i]); //arr 배열이 정렬된 상태이므로 list 의 마지막에 arr[i] 추가
 	}
 	return list; //바뀐 list 포인터 반환
-	
+
 }
-
-
-
