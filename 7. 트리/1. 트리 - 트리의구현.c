@@ -30,20 +30,44 @@ void postorder(TreeNode *root) {
 	}
 }
 
-TreeNode* gen_tree(int data,TreeNode *left, TreeNode *right) {
+TreeNode* gen_tree(int data) {
 	TreeNode *result = (TreeNode *)(malloc(sizeof(TreeNode)));
 	result->data = data;
-	result->right = right;
-	result->left = left;
+	result->right = NULL;
+	result->left = NULL;
 	return result;
 }
+void MakeLeftSubTree(TreeNode *main,TreeNode *sub) {
+	main->left = sub;
+}
+void MakeRightSubTree(TreeNode *main, TreeNode *sub) {
+	main->right = sub;
+}
+
 
 int main() {
-	TreeNode *n1 = gen_tree(1, NULL, NULL);
-	TreeNode *n2 = gen_tree(4, n1, NULL);
-	TreeNode *n3 = gen_tree(16, NULL, NULL);
-	TreeNode *n4 = gen_tree(25, NULL, NULL);
-	TreeNode *n5 = gen_tree(20, , n4);
-	TreeNode *n6 = gen_tree(15, n2, n5);
-	postorder(n6);
+	TreeNode *root = gen_tree(5);
+	TreeNode *n1 = gen_tree(4);
+	TreeNode *n2 = gen_tree(7);
+	TreeNode *n3 = gen_tree(9);
+	TreeNode *n4 = gen_tree(6);
+	TreeNode *n5 = gen_tree(3);
+	TreeNode *n6 = gen_tree(2);
+	TreeNode *n7 = gen_tree(1);
+	MakeLeftSubTree(root, n1);
+	MakeRightSubTree(root, n2);
+	MakeLeftSubTree(n1, n3);
+	MakeRightSubTree(n1, n4);
+	MakeRightSubTree(n3, n6);
+	MakeRightSubTree(n2, n5);
+	MakeLeftSubTree(n5, n7);
+	printf("전위 순서");
+	preorder(root);
+	printf("\n");
+	printf("중위 순서");
+	inorder(root);
+	printf("\n");
+	printf("후위 순서");
+	postorder(root);
+	printf("\n");
 }
