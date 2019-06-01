@@ -3,8 +3,8 @@
 typedef int elemant;
 typedef struct LinkedNum {
 	int data;
-	struct LinkedNum* prev;
-	struct LinkedNum* next;
+	struct LinkedNum *prev;
+	struct LinkedNum *next;
 }Node;
 
 Node* insert_last(Node* node,elemant data){
@@ -30,14 +30,24 @@ void print_node(Node* node) {
 		printf("%d->", temp->data);
 		temp = temp->next;
 	}
-	printf("NULL");
+	printf("NULL\n");
 }
-
+Node* delete_first(Node* node) {
+	if (node == NULL) {
+		return node;
+	}
+	Node* remove = node;
+	node = node->next;
+	free(remove);
+	return node;
+}
 
 int main() {
 	Node *head = NULL;
 	head = insert_last(head, 5);
 	head = insert_last(head, 9);
+	print_node(head);
+	head = delete_first(head);
 	print_node(head);
 	return 0;
 }
