@@ -64,6 +64,7 @@ Node* insert(Node* head, Node* prev, elemant data) {
 	create->prev = prev;
 	create->data = data;
 	prev->next = create;
+	create->next->prev = create;
 	return head;
 
 }
