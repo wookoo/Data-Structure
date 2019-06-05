@@ -61,7 +61,7 @@ void thread_in(TreeNode *t) {
 		else {
 			printf("[%c]", q->element.number);
 		}
-	
+
 		q = find(q);
 	} while (q);
 }
@@ -75,7 +75,7 @@ int main() {
 	TreeNode *n2 = create('*', n4, n5, 0);
 	TreeNode *n3 = create('/', n6, n7, 0);
 	TreeNode *root = create('+', n2, n3, 0);
-	n3->right = n2;
+	n4->right = n2;
 	n5->right = root;
 	n6->right = n3;
 	thread_in(root);
