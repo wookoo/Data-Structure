@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #define MAXSIZE 100
 typedef int element;
 typedef struct {
@@ -76,55 +75,33 @@ int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 �
 int main() {
 	Stack stack;
 	initStack(&stack);
-	char String[100] = "5+4*(75+4)-5";
-	char temp[100] = "";
-	//strcpy(temp, String); //값 복사
+	char String[] = "5+4*(75+4)-5";
 	char sym;
-	int index = 0;
 	while ((sym = get_symbol(String)) != NULL) {
-		//여기 수정
-		
 		int token = pie(sym);
 		if (sym == ')') {
 			char left;
 			while ((left = pop(&stack)) != '(') {
-				//printf(" %c", left);
-				temp[index] = ' ';
-				temp[++index] = left;
-				temp[++index] = NULL;
+				printf(" %c", left);
 			}
 		}
 		else if (pie(sym) == -1) {
-			//printf("%c", sym);
-			temp[index] = sym;
-			temp[++index] = NULL;
+			printf("%c", sym);
 		}
 		else {
 			if (sym != '(' && sym != ')') {
-				//printf(" ");
-				temp[index] = ' ';
-				temp[++index] = NULL;
+				printf(" ");
 			}
 			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
-				//printf("%c ", pop(&stack));
-				//temp[index] = ' ';
-				temp[index] = pop(&stack);
-				temp[++index] == ' ';
-				temp[++index] = NULL;
+				printf("%c ", pop(&stack));
 			}
 			push(&stack, sym);
 		}
 
 	}
 	while (is_empty(stack) != 1) {
-		temp[index] = ' ';
-		temp[++index] = pop(&stack);
-		temp[++index] = NULL;
-		//printf(" %c", pop(&stack));
+		printf(" %c", pop(&stack));
 	}
-	//temp[index] = '1';
-	//temp[++index] = NULL;
-	printf("%s", temp);
 
 
 }
