@@ -66,19 +66,19 @@ int pie(char sym) {
 void postfix(char *String) {
 	Stack stack;
 	initStack(&stack);
-	
+
 	char sym;
 	int index = 0;
 	while ((sym = get_symbol(String)) != NULL) {
 		int token = pie(sym);
-		;
+		
 		if (token == -1) {
-			//printf("%c", sym);
+	
 			String[index++] = sym;
 		}
 		else if (token == 1 || token == 2) {
 			while (is_empty(stack) != 1 && pie(peek(stack)) >= token) {
-				//printf("%c", );
+		
 				String[index++] = pop(&stack);
 			}
 			push(&stack, sym);
@@ -86,13 +86,21 @@ void postfix(char *String) {
 	}
 	while (is_empty(stack) != 1) {
 		String[index++] = pop(&stack);
-		//printf("%c", pop(&stack));
 	}
 }
 
 int main(void)
 {
 	char String[] = "5+3*2";
+	/*
+	1. 수식을 입력 받고
+	2. 수식을 후위식으로 변환하고 > 스택 사용
+	>> 수식이 숫자이면 계속 스트링에 붙이기
+	>> 수식이 문자면 atoi 를 사용해서 숫자 할당하기 >> strlen 사용
+	3. 변환된 수식으로 트리를 구성하고
+	4. 그 트리를 평가
+	
+	*/
 	postfix(&String);
 	printf("%s", String);
 }
