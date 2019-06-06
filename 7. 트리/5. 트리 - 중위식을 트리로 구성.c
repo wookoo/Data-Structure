@@ -76,32 +76,46 @@ int main() {
 	Stack stack;
 	initStack(&stack);
 	char String[] = "5+4*(75+4)-5";
+	char temp[100] = "";
+	int index = 0;
 	char sym;
 	while ((sym = get_symbol(String)) != NULL) {
 		int token = pie(sym);
 		if (sym == ')') {
 			char left;
 			while ((left = pop(&stack)) != '(') {
-				printf(" %c", left);
+				//printf(" %c", left);
+				temp[index] = ' ';
+				temp[++index] = left;
+				temp[++index] = NULL;
 			}
 		}
 		else if (pie(sym) == -1) {
-			printf("%c", sym);
+			temp[index] = sym;
+			temp[++index] = NULL;
+			//printf("%c", sym);
 		}
 		else {
 			if (sym != '(' && sym != ')') {
-				printf(" ");
+			//	printf(" ");
+				temp[index] = ' ';
+				temp[++index] = NULL;
 			}
 			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
-				printf("%c ", pop(&stack));
+				//printf("%c ", pop(&stack));
+				temp[index] = pop(&stack);
+				temp[++index] = ' ';
+				temp[++index] = NULL;
 			}
 			push(&stack, sym);
 		}
 
 	}
 	while (is_empty(stack) != 1) {
-		printf(" %c", pop(&stack));
+		temp[index] = ' ';
+		temp[++index] = pop(&stack);
+		//printf(" %c", pop(&stack));
 	}
 
-
+	printf("%s", temp);
 }
