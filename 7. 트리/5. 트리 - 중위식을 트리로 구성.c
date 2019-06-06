@@ -7,6 +7,12 @@ typedef struct {
 	int top;
 }Stack;
 
+typedef struct tree {
+	element data;
+	struct tree *left;
+	struct tree *right;
+}TreeNode;
+
 typedef Stack* Stack_Ptr;
 
 void initStack(Stack_Ptr StackPointer) {
@@ -73,11 +79,10 @@ int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 �
 	}
 	return -1;
 }
-int main() {
+char* postfix(char *String) {
 	Stack stack;
 	initStack(&stack);
-	char String[] = "5+4*(75+4)-5";
-	//char temp[100] = "";
+
 	char *temp = (char *)malloc(sizeof(char) * 100);
 	int index = 0;
 	char sym;
@@ -86,7 +91,6 @@ int main() {
 		if (sym == ')') {
 			char left;
 			while ((left = pop(&stack)) != '(') {
-				//printf(" %c", left);
 				temp[index] = ' ';
 				temp[++index] = left;
 				temp[++index] = NULL;
@@ -95,16 +99,13 @@ int main() {
 		else if (pie(sym) == -1) {
 			temp[index] = sym;
 			temp[++index] = NULL;
-			//printf("%c", sym);
 		}
 		else {
 			if (sym != '(' && sym != ')') {
-			//	printf(" ");
 				temp[index] = ' ';
 				temp[++index] = NULL;
 			}
 			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
-				//printf("%c ", pop(&stack));
 				temp[index] = pop(&stack);
 				temp[++index] = ' ';
 				temp[++index] = NULL;
@@ -117,8 +118,102 @@ int main() {
 		temp[index] = ' ';
 		temp[++index] = pop(&stack);
 		temp[++index] = NULL;
-		//printf(" %c", pop(&stack));
+
 	}
-	//strcpy(temp, "으악");
-	printf("%s", temp);
+
+	return temp;
+}
+int is_sign(char *sign) {
+	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign,"^") );
+}
+
+TreeNode *create(int data, TreeNode *left, TreeNode *right) {
+	TreeNode *temp = (TreeNode *)malloc(sizeof(TreeNode));
+	temp->data = data;
+	temp->left = left;
+	temp->right = right;
+	return temp;
+}
+
+TreeNode* MakeRoot() {
+	char String[] = "5 4 75 4 + * + 5 -";
+	//1. 스택에 때려박고
+	// 연산자가 나오면 두가지를 pop 수행
+	Stack stack;
+	initStack(&stack);
+	TreeNode *node;
+
+	char *split = strtok(String, " ");
+	while (split != NULL) {
+		node = create(0, NULL, NULL);
+		if (!is_sign(split)) {
+			int data = atoi(split);
+			node->data = data;
+		}
+		else {
+			node->right = (TreeNode *)pop(&stack);
+			node->left = (TreeNode *)pop(&stack);
+			node->data = split[0];
+		}
+		push(&stack, (int)node);
+		split = strtok(NULL, " ");
+	}
+	return (TreeNode *)pop(&stack);
+	
+}
+void inorder(TreeNode *root) {
+	if (root != NULL) {
+		inorder(root->left);
+		printf("[%d]", root->data);
+		inorder(root->right);
+	}
+}
+int is_leaf(TreeNode *root) {
+
+	return  (root->left == NULL && root->right == NULL);
+}
+int eval(TreeNode *root) {
+	if (root == NULL) {
+		return 0;
+	}
+	if (is_leaf(root)) {
+		return root->data;
+	}
+	int op1 = eval(root->left);
+	int op2 = eval(root->right);
+	printf("%d %c %d 를 계산합니다\n", op1, root->data, op2);
+	switch (root->data)
+	{
+	case '+':
+		return op1 + op2;
+	case '-':
+		return op1 - op2;
+	case '*':
+		return op1 * op2;
+	case '/':
+		return op1 / op2;
+	}
+	return 0;
+}
+
+int main() {
+	char String[] = "5+4*(75+4)-5";
+	char *temp = postfix(String);
+	//printf("%s\n", temp);
+	char *ptr = strtok(temp, " ");
+	while (ptr != NULL) {
+
+		if (is_sign(ptr)) {
+			printf("%c\n", ptr[0]);
+		}
+		
+		ptr = strtok(NULL, " ");
+	}
+	//5 4 75 4 + * + 5 -
+	free(temp);
+	TreeNode *root = MakeRoot();
+	//inorder(root);
+	printf("%d",eval(root));
+	
+	//MakeRoot
 }
