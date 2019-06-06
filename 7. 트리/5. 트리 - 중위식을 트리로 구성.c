@@ -1,5 +1,6 @@
 #include <stdio.h>
 #define MAXSIZE 100
+#include <string.h>
 typedef int element;
 typedef struct {
 	element data[MAXSIZE];
@@ -76,7 +77,8 @@ int main() {
 	Stack stack;
 	initStack(&stack);
 	char String[] = "5+4*(75+4)-5";
-	char temp[100] = "";
+	//char temp[100] = "";
+	char *temp = (char *)malloc(sizeof(char) * 100);
 	int index = 0;
 	char sym;
 	while ((sym = get_symbol(String)) != NULL) {
@@ -114,8 +116,9 @@ int main() {
 	while (is_empty(stack) != 1) {
 		temp[index] = ' ';
 		temp[++index] = pop(&stack);
+		temp[++index] = NULL;
 		//printf(" %c", pop(&stack));
 	}
-
+	//strcpy(temp, "으악");
 	printf("%s", temp);
 }
