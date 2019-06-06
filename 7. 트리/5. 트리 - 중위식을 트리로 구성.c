@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #define MAXSIZE 100
 typedef int element;
 typedef struct {
@@ -54,53 +55,76 @@ char get_symbol(char s[100]) {
 	}
 	return NULL;
 }
-
-int pie(char sym) {
+int pis(char sym) {
 	switch (sym) {
-	case '+':case '-': return 1;
-	case '*':case '%':case '/': return 2;
+	case '(': return 0;
+	case ')': return 3;
+	case '+':case'-': return 1;
+	case '*':case'%':case'/': return 2;
 	}
 	return -1;
 }
-
-void postfix(char *String) {
+int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 리턴값이 바뀐것을 볼 수 있다.
+	switch (sym) {
+	case '(': return 3;
+	case ')': return 0;
+	case '+':case'-': return 1;
+	case '*':case'%':case'/': return 2;
+	}
+	return -1;
+}
+int main() {
 	Stack stack;
 	initStack(&stack);
-
+	char String[100] = "5+4*(75+4)-5";
+	char temp[100] = "";
+	//strcpy(temp, String); //값 복사
 	char sym;
 	int index = 0;
 	while ((sym = get_symbol(String)) != NULL) {
+		//여기 수정
+		
 		int token = pie(sym);
-		
-		if (token == -1) {
-	
-			String[index++] = sym;
+		if (sym == ')') {
+			char left;
+			while ((left = pop(&stack)) != '(') {
+				//printf(" %c", left);
+				temp[index] = ' ';
+				temp[++index] = left;
+				temp[++index] = NULL;
+			}
 		}
-		else if (token == 1 || token == 2) {
-			while (is_empty(stack) != 1 && pie(peek(stack)) >= token) {
-		
-				String[index++] = pop(&stack);
+		else if (pie(sym) == -1) {
+			//printf("%c", sym);
+			temp[index] = sym;
+			temp[++index] = NULL;
+		}
+		else {
+			if (sym != '(' && sym != ')') {
+				//printf(" ");
+				temp[index] = ' ';
+				temp[++index] = NULL;
+			}
+			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
+				//printf("%c ", pop(&stack));
+				//temp[index] = ' ';
+				temp[index] = pop(&stack);
+				temp[++index] == ' ';
+				temp[++index] = NULL;
 			}
 			push(&stack, sym);
 		}
+
 	}
 	while (is_empty(stack) != 1) {
-		String[index++] = pop(&stack);
+		temp[index] = ' ';
+		temp[++index] = pop(&stack);
+		temp[++index] = NULL;
+		//printf(" %c", pop(&stack));
 	}
-}
+	//temp[index] = '1';
+	//temp[++index] = NULL;
+	printf("%s", temp);
 
-int main(void)
-{
-	char String[] = "5+3*2";
-	/*
-	1. 수식을 입력 받고
-	2. 수식을 후위식으로 변환하고 > 스택 사용
-	>> 수식이 숫자이면 계속 스트링에 붙이기
-	>> 수식이 문자면 atoi 를 사용해서 숫자 할당하기 >> strlen 사용
-	3. 변환된 수식으로 트리를 구성하고
-	4. 그 트리를 평가
-	
-	*/
-	postfix(&String);
-	printf("%s", String);
+
 }
