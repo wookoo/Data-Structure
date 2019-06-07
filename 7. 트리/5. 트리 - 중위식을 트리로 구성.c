@@ -49,7 +49,7 @@ int main() {
 	char String[] = "5+4*(75+4)-5";
 	char *temp = postfix(String);
 	//printf("%s\n", temp);
-	char *ptr = strtok(temp, " ");
+	/*char *ptr = strtok(temp, " ");
 	while (ptr != NULL) {
 
 		if (is_sign(ptr)) {
@@ -57,14 +57,13 @@ int main() {
 		}
 
 		ptr = strtok(NULL, " ");
-	}
+	}*/
 	//5 4 75 4 + * + 5 -
 	free(temp);
-	TreeNode *root = MakeRoot();
-	//inorder(root);
-	printf("%d", eval(root));
+	TreeNode *root = MakeRoot(); //기술한 알고리즘 토대로 root 를 만든 후 반환한다.
+	printf("%d", eval(root)); //계산 결과 출력
 	return 0;
-	//MakeRoot
+
 }
 
 
@@ -89,24 +88,26 @@ element pop(Stack_Ptr StackPointer) { //스택 pop 연산, 원본 데이터 수�
 	return temp; //값 반환
 }
 
-void push(Stack_Ptr StackPointer, element data) {
-	if (is_full(*StackPointer)) {
+void push(Stack_Ptr StackPointer, element data) { //push 연산, 원본 데이터 수정해야 하므로 stackptr 을 받아옴
+	if (is_full(*StackPointer)) { //스택이 꽉찼으면 push 수행불가
 		printf("더이상 push 를 수행 할 수 없습니다.");
-		exit(1);
+		exit(1);//프로그램 종료
 	}
-	StackPointer->top += 1;
-	StackPointer->data[StackPointer->top] = data;
+	StackPointer->top += 1; //스택이 안꽉찼으면 top 을 1 증가시키고
+	StackPointer->data[StackPointer->top] = data; //증가시킨 인덱스에 data 를 삽입
 }
 
-int is_full(Stack stack) {
-	return(stack.top == MAXSIZE-1);
+int is_full(Stack stack) { //스택이 꽉찼나 확인하는 함수
+	return(stack.top == MAXSIZE-1); //배열의 최대 사이즈와 top 이 같으면 1, 아니면  0 반환
+	// > 스택은 top 을 기준으로 데이터 삽입을 판단하기 때문
 }
 
-element peek(Stack stack) {
-	if (is_empty(stack)) {
-		return NULL;
+element peek(Stack stack) { //peek 함수, 스택의 상단 값 확인, 원본 수정되면 안되므로 stack 을 받아옴 
+	if (is_empty(stack)) { //스택이 비어있으면 peek 이 불가하다
+		printf("peek 수행 불가!");
+		exit();
 	}
-	return (stack.data[stack.top]);
+	return (stack.data[stack.top]); //그게 아니면 최상단 값을 반환한다.
 }
 
 char get_symbol(char *s) {
