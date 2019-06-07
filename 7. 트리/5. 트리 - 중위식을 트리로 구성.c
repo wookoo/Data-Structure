@@ -1,37 +1,81 @@
 #include <stdio.h>
 #define MAXSIZE 100
-#include <string.h>
-typedef int element;
+#include <string.h> //strtok 를 사용하기 위한 string 헤더 포함
+typedef int element; //char , int 형, 포인터를 저장할 변수, int 형이 포인터값 (2byte), char 값(2byte) 보다 크므로 저장 가능
 typedef struct {
-	element data[MAXSIZE];
-	int top;
-}Stack;
+	element data[MAXSIZE]; //스택 구조체 정의
+	int top; 
+}Stack; //스택으로 데이터 타입 선언
 
-typedef struct tree {
-	element data;
-	struct tree *left;
-	struct tree *right;
+typedef struct tree { //이진트리 구조체 생성
+	element data; //이진트리는 데이터
+	struct tree *left; //왼쪽 자식트리
+	struct tree *right; //오른쪽 자식트리를 갖는다.
 }TreeNode;
 
-typedef Stack* Stack_Ptr;
+typedef Stack* Stack_Ptr; //스택 포인터 정의
+//함수 원형 정의부 시작
+void initStack(Stack_Ptr StackPointer);
+int is_empty(Stack stack);
+element pop(Stack_Ptr StackPointer);
+void push(Stack_Ptr StackPointer, element data);
+int is_full(Stack stack);
+element peek(Stack stack);
+char get_symbol(char *s);
+int pis(char sym);
+int pie(char sym);
+char* postfix(char *String);
+int is_sign(char *sign);
+TreeNode *create(int data, TreeNode *left, TreeNode *right);
+TreeNode* MakeRoot();
+void inorder(TreeNode *root);
+int is_leaf(TreeNode *root);
+int eval(TreeNode *root);
 
-void initStack(Stack_Ptr StackPointer) {
-	StackPointer->top = -1;
-}
+//함수 원형 정의부 끝
 
+int main() {
+	char String[] = "5+4*(75+4)-5";
+	char *temp = postfix(String);
+	//printf("%s\n", temp);
+	char *ptr = strtok(temp, " ");
+	while (ptr != NULL) {
 
-int  is_empty(Stack stack) {
-	return (stack.top == -1);
-}
+		if (is_sign(ptr)) {
+			printf("%c\n", ptr[0]);
+		}
 
-element pop(Stack_Ptr StackPointer) {
-	if (is_empty(*StackPointer)) {
-		printf("더이상 pop 을 수행할수 없습니다.");
-		exit(1);
+		ptr = strtok(NULL, " ");
 	}
-	element temp = StackPointer->data[StackPointer->top];
-	StackPointer->top -= 1;
-	return temp;
+	//5 4 75 4 + * + 5 -
+	free(temp);
+	TreeNode *root = MakeRoot();
+	//inorder(root);
+	printf("%d", eval(root));
+	return 0;
+	//MakeRoot
+}
+
+
+
+void initStack(Stack_Ptr StackPointer) { //스택 초기화, 원본 데이터 수정해야 하므로 StackPtr 을 받아옴
+	StackPointer->top = -1; //스택의 top 을 -1 로 초기화 해준다
+}
+
+
+int is_empty(Stack stack) { //스택이비었나 확인, 원본데이터 수정하면 안되므로 Stack 을 받아옴
+	return (stack.top == -1); //top 이 -1 이면 1, -1이 아니면 0 반환
+}
+
+element pop(Stack_Ptr StackPointer) { //스택 pop 연산, 원본 데이터 수정해야하므로 stackPtr 을 받아옴
+	if (is_empty(*StackPointer)) { //스택이 비었으면 pop 이 수행이 불가하다
+		printf("더이상 pop 을 수행할수 없습니다."); //그러므로 오류메세지 출력후
+		exit(1); //프로그램 종료
+	}
+	//스택이 안비었으면 정상적으로 pop 이 수행된다
+	element temp = StackPointer->data[StackPointer->top]; 	//반환할 값을 할당
+	StackPointer->top -= 1; //top 을 -1 을 해준다 > 값이 삭제되는것 처럼 보임
+	return temp; //값 반환
 }
 
 void push(Stack_Ptr StackPointer, element data) {
@@ -44,7 +88,7 @@ void push(Stack_Ptr StackPointer, element data) {
 }
 
 int is_full(Stack stack) {
-	return(stack.top == MAXSIZE);
+	return(stack.top == MAXSIZE-1);
 }
 
 element peek(Stack stack) {
@@ -54,7 +98,7 @@ element peek(Stack stack) {
 	return (stack.data[stack.top]);
 }
 
-char get_symbol(char s[100]) {
+char get_symbol(char *s) {
 	static int index = 0;
 	if (s[index] != NULL) {
 		return s[index++];
@@ -124,7 +168,7 @@ char* postfix(char *String) {
 	return temp;
 }
 int is_sign(char *sign) {
-	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign,"^") );
+	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^"));
 }
 
 TreeNode *create(int data, TreeNode *left, TreeNode *right) {
@@ -159,7 +203,7 @@ TreeNode* MakeRoot() {
 		split = strtok(NULL, " ");
 	}
 	return (TreeNode *)pop(&stack);
-	
+
 }
 void inorder(TreeNode *root) {
 	if (root != NULL) {
@@ -196,24 +240,3 @@ int eval(TreeNode *root) {
 	return 0;
 }
 
-int main() {
-	char String[] = "5+4*(75+4)-5";
-	char *temp = postfix(String);
-	//printf("%s\n", temp);
-	char *ptr = strtok(temp, " ");
-	while (ptr != NULL) {
-
-		if (is_sign(ptr)) {
-			printf("%c\n", ptr[0]);
-		}
-		
-		ptr = strtok(NULL, " ");
-	}
-	//5 4 75 4 + * + 5 -
-	free(temp);
-	TreeNode *root = MakeRoot();
-	//inorder(root);
-	printf("%d",eval(root));
-	
-	//MakeRoot
-}
