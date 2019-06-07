@@ -1,10 +1,11 @@
 #include <stdio.h>
 #define MAXSIZE 100
 #include <string.h> //strtok 를 사용하기 위한 string 헤더 포함
+#include <math.h> //pow 를 사용하기 위한 pow 헤더 포함
 typedef int element; //char , int 형, 포인터를 저장할 변수, int 형이 포인터값 (2byte), char 값(2byte) 보다 크므로 저장 가능
 typedef struct {
 	element data[MAXSIZE]; //스택 구조체 정의
-	int top; 
+	int top;
 }Stack; //스택으로 데이터 타입 선언
 
 typedef struct tree { //이진트리 구조체 생성
@@ -31,6 +32,7 @@ TreeNode* MakeRoot();
 void inorder(TreeNode *root);
 int is_leaf(TreeNode *root);
 int eval(TreeNode *root);
+void deleteTree(TreeNode *root);
 
 //함수 원형 정의부 끝
 
@@ -39,29 +41,39 @@ int main() {
 		알고리즘은 다음과 같다.
 		1.문자열을 받아온다
 		2.문자열에서 숫자, 부호를 판별한다
-		3.판별된 문자를 공백을 기준으로 분리한다 
+		3.판별된 문자를 공백을 기준으로 분리한다
 			3 - 1. 예를들여 34 + 4 면 344+ 가 되므로, 34 4 + 로 구분하기 위함
 		4. 공백을 기준으로 strtok 함수를 사용하여 문자를 분리한후, 부호인지 확인한다
 		5. 부호가 아니면, atoi 함수를 사용하여, 숫자로 만들고 스택에 넣는다
 		6. 부호면, 스택에서 pop 을 두번 수행 한후, 트리로 만들고 스택에 넣는다.
 		7. 이 작업을 반복하고 root 노드를 반환하면 된다.
+		8. 반환된 root 노드를 이용하여 후위평가를 진행한다
+		9. 그 후, 메모리 누수 방지를 위해 반환된 노드 등을 free 처리한다.
 	*/
-	char String[] = "5+4*(75+4)-5";
-	char *temp = postfix(String);
-	//printf("%s\n", temp);
-	/*char *ptr = strtok(temp, " ");
-	while (ptr != NULL) {
 
-		if (is_sign(ptr)) {
-			printf("%c\n", ptr[0]);
-		}
+	int restart;
+	do {
+		char String[100];
+		printf("========================\n");
+		printf("중위식을 입력하세요 : "); 
+		scanf("%s", String);//수식 입력 (중위식)
+		printf("입력한 중위식 : %s\n", String); //입력한 중위식 출력
+		char *posted = postfix(String); //입력받은 중위식을 후위식으로 변환한다.
+		printf("변환된 후위식 : %s\n", posted);//변환된 중위식 출력
+		TreeNode *root = MakeRoot(posted); //기술한 알고리즘 토대로 root 를 만든 후 반환한다.
+		
+		int res = eval(root);// 평가된 후위식값
+		printf("계산 결과 : %d\n", eval(root)); //계산 결과 출력
+		printf("다시 수행하시겠습니까? (1. 예, 기타. 아니오) : "); 
+		scanf("%d", &restart);//다시 계산할지확인을 한다. 1을 입력하면 재시작
+		printf("========================\n");
+		free(posted); //메모리 누수 방지를 위해 posted free
+		deleteTree(root); //메모리 누수 방지를 위해 root free
 
-		ptr = strtok(NULL, " ");
-	}*/
-	//5 4 75 4 + * + 5 -
-	free(temp);
-	TreeNode *root = MakeRoot(); //기술한 알고리즘 토대로 root 를 만든 후 반환한다.
-	printf("%d", eval(root)); //계산 결과 출력
+	} while (restart == 1); //1 을 입력한 경우 재시작
+
+
+
 	return 0;
 
 }
@@ -98,7 +110,7 @@ void push(Stack_Ptr StackPointer, element data) { //push 연산, 원본 데이�
 }
 
 int is_full(Stack stack) { //스택이 꽉찼나 확인하는 함수
-	return(stack.top == MAXSIZE-1); //배열의 최대 사이즈와 top 이 같으면 1, 아니면  0 반환
+	return(stack.top == MAXSIZE - 1); //배열의 최대 사이즈와 top 이 같으면 1, 아니면  0 반환
 	// > 스택은 top 을 기준으로 데이터 삽입을 판단하기 때문
 }
 
@@ -110,19 +122,13 @@ element peek(Stack stack) { //peek 함수, 스택의 상단 값 확인, 원본 �
 	return (stack.data[stack.top]); //그게 아니면 최상단 값을 반환한다.
 }
 
-char get_symbol(char *s) {
-	static int index = 0;
-	if (s[index] != NULL) {
-		return s[index++];
-	}
-	return NULL;
-}
 int pis(char sym) {
 	switch (sym) {
 	case '(': return 0;
 	case ')': return 3;
 	case '+':case'-': return 1;
 	case '*':case'%':case'/': return 2;
+	case '^': return 4;
 	}
 	return -1;
 }
@@ -132,6 +138,7 @@ int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 �
 	case ')': return 0;
 	case '+':case'-': return 1;
 	case '*':case'%':case'/': return 2;
+	case '^': return 4;
 	}
 	return -1;
 }
@@ -139,10 +146,13 @@ char* postfix(char *String) {
 	Stack stack;
 	initStack(&stack);
 
-	char *temp = (char *)malloc(sizeof(char) * 100);
+	char *temp = (char *)malloc(sizeof(char) * 200);
 	int index = 0;
 	char sym;
-	while ((sym = get_symbol(String)) != NULL) {
+	int len = strlen(String);
+	
+	for(int size = 0; size < len; size ++){
+		sym = String[size];
 		int token = pie(sym);
 		if (sym == ')') {
 			char left;
@@ -180,7 +190,7 @@ char* postfix(char *String) {
 	return temp;
 }
 int is_sign(char *sign) {
-	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^"));
+	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^") && strcmp(sign, "%") != 0);
 }
 
 TreeNode *create(int data, TreeNode *left, TreeNode *right) {
@@ -191,15 +201,24 @@ TreeNode *create(int data, TreeNode *left, TreeNode *right) {
 	return temp;
 }
 
-TreeNode* MakeRoot() {
-	char String[] = "5 4 75 4 + * + 5 -";
-	//1. 스택에 때려박고
-	// 연산자가 나오면 두가지를 pop 수행
-	Stack stack;
-	initStack(&stack);
-	TreeNode *node;
+TreeNode* MakeRoot(char* String) {
+	/*
+	1. 문자열이 끝날때 까지 반복한다
+	2. 피연산자가 나오면 push 를 수행한다
+	3. 연산자가 나오면 pop 을 두번 수행한다
+	4. 두번 수행한 pop 을 가지고 연산자가 부모고 오른쪽 자식 노드는 처음 수행한 pop 에 할당
+		>> if 문이 처음에 무조건 2번 이상 수행되므로 pop 했을때 포인터가 아닌 경우는 없다!!
+	5. 두번째 수행한 pop 은 왼쪽 자식 노드에 할당
+	6. 그 후 생성된 노드를 스택에 다시 삽입
+		6 - 1. 스택의 데이터 타입은 int 형이므로 생성된 주소값을 int 형으로 형변환후 삽입
+	7. 반복문이 끝나면 pop 을 수행하여, 노드를 반환한다.
+		7 - 1. 스택의 데이터 타입은 int 형인데, pop 을 하면 int 형이므로 TreeNode* 형변환후 반환
+	 */
+	Stack stack; //root 노드를 저장하기 위한 stack 선언
+	initStack(&stack); //스택 초기화
+	TreeNode *node; 
 
-	char *split = strtok(String, " ");
+	char *split = strtok(String, " "); //입력받아온 String 은 공백을 기준으로 분리해야 하므로 공백 기준으로 분리
 	while (split != NULL) {
 		node = create(0, NULL, NULL);
 		if (!is_sign(split)) {
@@ -217,6 +236,8 @@ TreeNode* MakeRoot() {
 	return (TreeNode *)pop(&stack);
 
 }
+
+
 void inorder(TreeNode *root) {
 	if (root != NULL) {
 		inorder(root->left);
@@ -237,7 +258,7 @@ int eval(TreeNode *root) {
 	}
 	int op1 = eval(root->left);
 	int op2 = eval(root->right);
-	printf("%d %c %d 를 계산합니다\n", op1, root->data, op2);
+	//printf("%d %c %d 를 계산합니다\n", op1, root->data, op2);
 	switch (root->data)
 	{
 	case '+':
@@ -248,7 +269,18 @@ int eval(TreeNode *root) {
 		return op1 * op2;
 	case '/':
 		return op1 / op2;
+	case '%':
+		return op1 % op2;
+	case '^':
+		return pow(op1, op2);
 	}
 	return 0;
 }
 
+void deleteTree(TreeNode *root) { //후위 탐색 알고리즘을 이용하여 진행한다
+	if (root != NULL) { //입력받은  root 가 NULL 이 아니면
+		deleteTree(root->left); //현 함수를 재귀호출을 한다 (root 의 left에 대해)
+		deleteTree(root->right); //현 함수를 재귀호출을 한다 (root 의 left에 대해)
+		free(root); //그 후 마지막으로 방문되는 노드는 root 노드이므로 그 노드를 free 한다.
+	}
+}
