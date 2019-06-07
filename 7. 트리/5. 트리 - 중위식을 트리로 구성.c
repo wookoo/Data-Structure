@@ -70,6 +70,8 @@ int main() {
 		free(posted); //메모리 누수 방지를 위해 posted free
 		deleteTree(root); //메모리 누수 방지를 위해 root free
 
+
+
 	} while (restart == 1); //1 을 입력한 경우 재시작
 
 
@@ -219,36 +221,43 @@ TreeNode* MakeRoot(char* String) {
 	TreeNode *node; 
 
 	char *split = strtok(String, " "); //입력받아온 String 은 공백을 기준으로 분리해야 하므로 공백 기준으로 분리
-	while (split != NULL) {
-		node = create(0, NULL, NULL);
-		if (!is_sign(split)) {
-			int data = atoi(split);
-			node->data = data;
+	while (split != NULL) { //split 포인터가 NULL 이 아닐때 까지 반복
+		node = create(0, NULL, NULL); //빈 노드를 생성한다
+		if (!is_sign(split)) { //split 포인터 즉, 문자열이 부호가 아니면
+			int data = atoi(split); //그 값은 숫자이므로 atoi 함수로 숫자 추출
+			node->data = data; //추출된 숫자를 node 의 data 로 할당
 		}
 		else {
-			node->right = (TreeNode *)pop(&stack);
-			node->left = (TreeNode *)pop(&stack);
-			node->data = split[0];
+			node->right = (TreeNode *)pop(&stack); //문자열이 부호면 스택에 저장되어있는 맨 마지막 값을 가져와서
+			//right 에 할당
+			node->left = (TreeNode *)pop(&stack); //한번 더 pop 을 수행하여 left 에 할당
+			node->data = split[0]; //그 후 부호를 data 에 할당
 		}
-		push(&stack, (int)node);
-		split = strtok(NULL, " ");
+		push(&stack, (int)node); //작업이 끝났으면 스택에 넣고
+		split = strtok(NULL, " "); //다음 문자열로 이동
 	}
-	return (TreeNode *)pop(&stack);
+	return (TreeNode *)pop(&stack); //while 문이 끝나면 루트 노드만 남아있으므로 pop 을 하여 루트 노드 반환
 
 }
 
 
-void inorder(TreeNode *root) {
+void inorder(TreeNode *root) { //중위 탐색, 좌노드 루트노드 우노드 순 방문
 	if (root != NULL) {
 		inorder(root->left);
-		printf("[%d]", root->data);
+		if (!is_leaf(root)) { //잎노드에만 숫자가 있다
+			printf("[%c]", root->data); //잎노드가 아니면 문자 출력
+		}
+		else {
+			printf("[%d]", root->data); //잎노드면 숫자 출력
+		}
+		
 		inorder(root->right);
 	}
 }
-int is_leaf(TreeNode *root) {
+int is_leaf(TreeNode *root) { //잎노드인지 판별
 
-	return  (root->left == NULL && root->right == NULL);
-}
+	return  (root->left == NULL && root->right == NULL); //왼쪽 노드와 오른쪽 노드가 없으면 1 아니면 0 반환
+} 
 int eval(TreeNode *root) {
 	if (root == NULL) {
 		return 0;
@@ -258,7 +267,7 @@ int eval(TreeNode *root) {
 	}
 	int op1 = eval(root->left);
 	int op2 = eval(root->right);
-	//printf("%d %c %d 를 계산합니다\n", op1, root->data, op2);
+
 	switch (root->data)
 	{
 	case '+':
