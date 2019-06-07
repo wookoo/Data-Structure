@@ -124,36 +124,36 @@ element peek(Stack stack) { //peek 함수, 스택의 상단 값 확인, 원본 �
 	return (stack.data[stack.top]); //그게 아니면 최상단 값을 반환한다.
 }
 
-int pis(char sym) {
+int pis(char sym) { //스택 안에서 순위 검사
 	switch (sym) {
-	case '(': return 0;
-	case ')': return 3;
-	case '+':case'-': return 1;
-	case '*':case'%':case'/': return 2;
-	case '^': return 4;
+	case '(': return 0; //여는 괄호가 마지막
+	case ')': return 3; //닫는 괄호가 두번째
+	case '+':case'-': return 1; //더하기 빼기가 네번째
+	case '*':case'%':case'/': return 2; //곱하기 나누기 나머지가 세번째
+	case '^': return 4; //제곱이 첫순위
 	}
 	return -1;
 }
 int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 리턴값이 바뀐것을 볼 수 있다.
-	switch (sym) {
-	case '(': return 3;
-	case ')': return 0;
-	case '+':case'-': return 1;
-	case '*':case'%':case'/': return 2;
-	case '^': return 4;
+	switch (sym) { //스택 밖에서 순위 검사
+	case '(': return 3;  //여는 괄호가 두번째
+	case ')': return 0;  //닫는 괄호가 마지막
+	case '+':case'-': return 1; //더하기 빼기가 네번째
+	case '*':case'%':case'/': return 2; //곱하기 나누기 나머지가 세번째
+	case '^': return 4;//제곱이 제일 첫순위
 	}
 	return -1;
 }
-char* postfix(char *String) {
-	Stack stack;
+char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 함수
+	Stack stack; //후위식 변환을 위해 스택 사용
 	initStack(&stack);
 
-	char *temp = (char *)malloc(sizeof(char) * 200);
+	char *temp = (char *)malloc(sizeof(char) * 200); //반환할 값, malloc 으로 동적생성
 	int index = 0;
 	char sym;
-	int len = strlen(String);
+	int len = strlen(String); //스트링의 길이를 잰 값 반환
 	
-	for(int size = 0; size < len; size ++){
+	for(int size = 0; size < len; size ++){ //스트링의 길이 만큼 반복
 		sym = String[size];
 		int token = pie(sym);
 		if (sym == ')') {
@@ -162,37 +162,43 @@ char* postfix(char *String) {
 				temp[index] = ' ';
 				temp[++index] = left;
 				temp[++index] = NULL;
+				//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
 			}
 		}
 		else if (pie(sym) == -1) {
 			temp[index] = sym;
 			temp[++index] = NULL;
+			//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
 		}
 		else {
-			if (sym != '(' && sym != ')') {
-				temp[index] = ' ';
+			if (sym != '(' && sym != ')') { //그 외의 경우 중 ( 와 ) 가 아니면
+				temp[index] = ' '; //기호와 숫자 구분해야 하므로 공백 추가
 				temp[++index] = NULL;
+				//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
 			}
-			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) {
-				temp[index] = pop(&stack);
-				temp[++index] = ' ';
+			while ((is_empty(stack) != 1) && (pis(peek(stack)) >= pie(sym))) { //for문이 끝나면, 스택이 빌때까지 반복
+				temp[index] = pop(&stack); //문자가 들어오는 경우 이므로 pop 연산 후 문자열 뒤에 추가
+				temp[++index] = ' '; //마지막에 공백 추가
 				temp[++index] = NULL;
+				//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
 			}
 			push(&stack, sym);
 		}
 
 	}
-	while (is_empty(stack) != 1) {
-		temp[index] = ' ';
-		temp[++index] = pop(&stack);
+	while (is_empty(stack) != 1) { //스택이 비지 않을떄까지
+		temp[index] = ' '; //공백 추가 후 
+		temp[++index] = pop(&stack); //부호 추가
 		temp[++index] = NULL;
+		//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
 
 	}
 
 	return temp;
 }
 int is_sign(char *sign) {
-	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^") && strcmp(sign, "%") != 0);
+	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^") && strcmp(sign, "%") != 0); //부호가 아니면 0 
+	//부호면 1 반환
 }
 
 TreeNode *create(int data, TreeNode *left, TreeNode *right) {
@@ -259,30 +265,31 @@ int is_leaf(TreeNode *root) { //잎노드인지 판별
 	return  (root->left == NULL && root->right == NULL); //왼쪽 노드와 오른쪽 노드가 없으면 1 아니면 0 반환
 } 
 int eval(TreeNode *root) {
-	if (root == NULL) {
-		return 0;
+	if (root == NULL) { //입력받은 Node 가 NULL 이면
+		return 0; //0을 반환한다
 	}
-	if (is_leaf(root)) {
-		return root->data;
+	if (is_leaf(root)) { //만약 입력받은 노드가 잎노드면
+		return root->data; //그 노드가 가진 데이터 값 반환
 	}
-	int op1 = eval(root->left);
-	int op2 = eval(root->right);
+	int op1 = eval(root->left); //op1 은 왼쪽 노드의 계산 결과
+	int op2 = eval(root->right); //op2 는 오른쪽 노드의 계산 결과
 
-	switch (root->data)
+	switch (root->data) //잎노드가 아닌 경우 
 	{
 	case '+':
-		return op1 + op2;
+		return op1 + op2; //부호에 따라 값 결정, 더하기
 	case '-':
-		return op1 - op2;
+		return op1 - op2; //빼기
 	case '*':
-		return op1 * op2;
+		return op1 * op2; //곱하기
 	case '/':
-		return op1 / op2;
+		return op1 / op2; //나누기
 	case '%':
-		return op1 % op2;
-	case '^':
+		return op1 % op2; //나머지
+	case '^': //제곱
 		return pow(op1, op2);
 	}
+	//그 외의 경우 0반환
 	return 0;
 }
 
