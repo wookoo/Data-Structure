@@ -332,7 +332,7 @@ void inorder_iter(TreeNode *root) {
 			if (is_leaf(curr)) { //잎노드만 숫자를 가지고 있으므로
 				printf("[%d]", curr->data); //숫자 출력
 			}
-			else { //잎노드가 아닌 경우 그냥 데이터 출력
+			else { //잎노드가 아닌 경우 부호 출력
 				printf("[%c]", curr->data);
 			}
 			//데이터는 curr 의 오른쪽으로 이동 한다.
