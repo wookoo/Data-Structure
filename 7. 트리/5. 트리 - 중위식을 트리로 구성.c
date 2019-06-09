@@ -22,19 +22,22 @@ element pop(Stack_Ptr StackPointer);
 void push(Stack_Ptr StackPointer, element data);
 int is_full(Stack stack);
 element peek(Stack stack);
-char get_symbol(char *s);
 int pis(char sym);
 int pie(char sym);
-char* postfix(char *String);
-int is_sign(char *sign);
-TreeNode *create(int data, TreeNode *left, TreeNode *right);
-TreeNode* MakeRoot();
-void inorder(TreeNode *root);
-int is_leaf(TreeNode *root);
-int eval(TreeNode *root);
-void deleteTree(TreeNode *root);
-void inorder_iter(TreeNode *root);
-void postorder_iter(TreeNode *root);
+char * postfix(char * String);
+int is_sign(char * sign);
+TreeNode * createNode();
+void * setData(TreeNode * root, int data);
+void * setLeft(TreeNode * root, TreeNode * left);
+void * setRight(TreeNode * root, TreeNode * right);
+TreeNode * createRoot(char * String);
+void inorder(TreeNode * root);
+int is_leaf(TreeNode * root);
+int eval(TreeNode * root);
+void deleteTree(TreeNode * root);
+void inorder_iter(TreeNode * root);
+void postorder_iter(TreeNode * root);
+
 //함수 원형 정의부 끝
 
 int main() {
@@ -62,7 +65,7 @@ int main() {
 		printf("입력한 중위식 : %s\n", String); //입력한 중위식 출력
 
 		char *posted = postfix(String); //입력받은 중위식을 후위식으로 변환한다.
-		TreeNode *root = MakeRoot(posted); //기술한 알고리즘 토대로 root 를 만든 후 반환한다. > 후위 표기법으로부터 수식 트리 생성
+		TreeNode *root = createRoot(posted); //기술한 알고리즘 토대로 root 를 만든 후 반환한다. > 후위 표기법으로부터 수식 트리 생성
 		printf("변환된 후위식 : %s\n", posted);//변환된 후위식 출력
 
 		printf("반복 버전 중위 순회 결과 : ");
@@ -70,25 +73,19 @@ int main() {
 
 		printf("반복 버전 후위 순회 결과 : ");
 		postorder_iter(root);
-		
+
 		int res = eval(root);// 평가된 후위식값
 		printf("계산 결과 : %d\n", eval(root)); //계산 결과 출력
 
 		printf("========================\n");
 		printf("다시 수행하시겠습니까? (1. 예, 기타. 아니오) : ");
-		
+
 		scanf("%d", &restart);//다시 계산할지확인을 한다. 1을 입력하면 재시작
-		
+
 		free(posted); //메모리 누수 방지를 위해 posted free
 		deleteTree(root); //메모리 누수 방지를 위해 root free
 
-
-
-
-		
-
 	} while (restart == 1); //1 을 입력한 경우 재시작
-
 
 
 	return 0;
@@ -163,11 +160,10 @@ char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 �
 	Stack stack; //후위식 변환을 위해 스택 사용
 	initStack(&stack);
 
-	char *temp = (char *)malloc(sizeof(char) * 200); //반환할 값, malloc 으로 동적생성
+	char *temp = (char *)malloc(sizeof(char) * 200); //반환할 스트링, malloc 으로 동적생성
 	int index = 0;
 	char sym;
 	int len = strlen(String); //스트링의 길이를 잰 값 반환
-
 	for (int size = 0; size < len; size++) { //스트링의 길이 만큼 반복
 		sym = String[size];
 		int token = pie(sym);
@@ -199,16 +195,13 @@ char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 �
 			}
 			push(&stack, sym);
 		}
-
 	}
 	while (is_empty(stack) != 1) { //스택이 비지 않을떄까지
 		temp[index] = ' '; //공백 추가 후 
 		temp[++index] = pop(&stack); //부호 추가
 		temp[++index] = NULL;
 		//스트링의 종료는 NULL 로 선언되므로 마지막에 NULL
-
 	}
-
 	return temp;
 }
 int is_sign(char *sign) {
@@ -216,15 +209,24 @@ int is_sign(char *sign) {
 	//부호면 1 반환
 }
 
-TreeNode *create(int data, TreeNode *left, TreeNode *right) {
-	TreeNode *temp = (TreeNode *)malloc(sizeof(TreeNode));
-	temp->data = data;
-	temp->left = left;
-	temp->right = right;
-	return temp;
+TreeNode *createNode() { //노드를생성하는 함수
+	TreeNode *temp = (TreeNode *)malloc(sizeof(TreeNode)); //노드 동적 생성
+	temp->data = 0; //데이터와 왼쪽 오른쪽은 기본값 0 과 NULL 로 설정
+	temp->left = NULL;
+	temp->right = NULL;
+	return temp; //생성된 temp 포인터 반환
+}
+void *setData(TreeNode *root,int data) { //데이터를 설정 하는 함수
+	root->data = data; //받아온 root 의 data 필드를 받아온 data 로 설정
+}
+void *setLeft(TreeNode *root, TreeNode *left) { //왼쪽 자식 노드를 설정하는 함수
+	root->left = left; //받아온 root 의 left 필드를 받아온 left 포인터로 설정
+}
+void *setRight(TreeNode *root, TreeNode *right) { //오른쪽 자식 노드를 설정하는 함수
+	root->right = right; //받아온 root 의 right 필드를 받아온 right 포인터로 설정
 }
 
-TreeNode* MakeRoot(char* String) {
+TreeNode* createRoot(char* String) {
 	/*
 	1. 문자열이 끝날때 까지 반복한다
 	2. 피연산자가 나오면 push 를 수행한다
@@ -243,23 +245,23 @@ TreeNode* MakeRoot(char* String) {
 
 	char *split = strtok(String, " "); //입력받아온 String 은 공백을 기준으로 분리해야 하므로 공백 기준으로 분리
 	while (split != NULL) { //split 포인터가 NULL 이 아닐때 까지 반복
-		node = create(0, NULL, NULL); //빈 노드를 생성한다
+		node = createNode(); //빈 노드를 생성한다
 		if (!is_sign(split)) { //split 포인터 즉, 문자열이 부호가 아니면
 			int data = atoi(split); //그 값은 숫자이므로 atoi 함수로 숫자 추출
-			node->data = data; //추출된 숫자를 node 의 data 로 할당
+			setData(node, data);
+			//node->data = data; //추출된 숫자를 node 의 data 로 할당
 		}
 		else {
-			node->right = (TreeNode *)pop(&stack); //문자열이 부호면 스택에 저장되어있는 맨 마지막 값을 가져와서
+			setRight(node, (TreeNode *)pop(&stack)); //문자열이 부호면 스택에 저장되어있는 맨 마지막 값을 가져와서
 			//right 에 할당,스택 반환값이 달라서 TreeNode 형변환
-			node->left = (TreeNode *)pop(&stack); //한번 더 pop 을 수행하여 left 에 할당, 스택 반환값이 달라서 TreeNode 형변환
-			node->data = split[0]; //그 후 부호를 data 에 할당
+			setLeft(node, (TreeNode *)pop(&stack));//한번 더 pop 을 수행하여 left 에 할당, 스택 반환값이 달라서 TreeNode 형변환
+			setData(node, split[0]);//그 후 부호를 data 에 할당
 		}
 		push(&stack, (int)node); //작업이 끝났으면 스택에 넣는다. 데이터 타입이 다르므로 int 로 형변환
 		split = strtok(NULL, " "); //다음 문자열로 이동
 	}
 	return (TreeNode *)pop(&stack); //while 문이 끝나면 루트 노드만 남아있으므로 pop 을 하여 루트 노드 반환
 	//스택 반환값이 달라서 TreeNode 형변환
-
 }
 
 
@@ -272,12 +274,10 @@ void inorder(TreeNode *root) { //중위 탐색, 좌노드 루트노드 우노드
 		else {
 			printf("[%d]", root->data); //잎노드면 숫자 출력
 		}
-
-		inorder(root->right);
+		inorder(root->right); 
 	}
 }
 int is_leaf(TreeNode *root) { //잎노드인지 판별
-
 	return  (root->left == NULL && root->right == NULL); //왼쪽 노드와 오른쪽 노드가 없으면 1 아니면 0 반환
 }
 int eval(TreeNode *root) {
@@ -323,12 +323,10 @@ void inorder_iter(TreeNode *root) {
 	Stack_Ptr stack = &s;
 	initStack(stack);
 	while (1) {
-
 		while (curr) {
 			push(stack, (int)curr); //왼쪽으로 이동하면서 모든 노드를 스택에 삽입, 매개변수 타입이 달라서 int 로 형변환
 			curr = curr->left;
 		}
-		//push(stack,(int)curr);
 		if (!is_empty(*stack)) {
 			curr = (TreeNode *)pop(stack); //스택 반환값이 달라서 TreeNode 형변환
 			if (is_leaf(curr)) { //잎노드만 숫자를 가지고 있으므로
@@ -337,13 +335,12 @@ void inorder_iter(TreeNode *root) {
 			else { //잎노드가 아닌 경우 그냥 데이터 출력
 				printf("[%c]", curr->data);
 			}
-
+			//데이터는 curr 의 오른쪽으로 이동 한다.
 			curr = curr->right;
 		}
 		else {
 			break;
 		}
-		
 	}
 	printf("\n");
 }
@@ -359,13 +356,10 @@ void postorder_iter(TreeNode *root) {
 
 		if (curr  && curr != visited) { //현재 노드가 NULL 이 아니고 방문되지 않은것이면
 			push(stack, curr); //curr 을 스택에 넣는다.
-			
+
 			//후위 탐색은 좌측 우측 루트 이렇게 출력된다.
 			//스택은 먼저 들어간게 마지막에 나오므로 후위 탐색을 진행할려면
 			//루트 우측 좌측 노드 이렇게 삽입을 해야한다.
-
-
-
 			while (curr) { //curr 이 NULL 이 아닐때 까지 반복한다.
 				//좌측 우측 루트로 나와야 하므로
 				if (curr->right) { //curr  의 right 가 NULL 이 아니면
@@ -374,12 +368,9 @@ void postorder_iter(TreeNode *root) {
 				if (curr->left) { //curr 의 left 가 NULL 이 아니면
 					push(stack, curr->left); //스택에 넣는다
 				}//루트 우측 삽입되었으므로 좌측 삽입
-				
+
 				curr = curr->left; //curr 은 좌측 노드로 이동한다.
 			}
-
-
-
 		}
 
 		if (!is_empty(*stack)) { //스택이 비지 않았으면 수행
@@ -392,7 +383,6 @@ void postorder_iter(TreeNode *root) {
 				//좌측 노드로 이동한다
 				curr = curr->left;
 			}
-
 			if (curr->right == NULL || curr->right == visited) {
 				//오른쪽 노드가 NULL 이거나 오른쪽 노드가 방문된 경우
 				//후위탐색은 좌측 우측 루트 (본인) 이다.
@@ -408,14 +398,10 @@ void postorder_iter(TreeNode *root) {
 				//현재 노드를 완료된 노드로 설정
 				visited = curr;
 			}
-		
-
-			
 		}
 		else { //스택이 비었으면 while 문 종료
 			break;
 		}
-
 	}
 	printf("\n");
 }
