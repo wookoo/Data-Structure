@@ -37,7 +37,7 @@ int eval(TreeNode * root);
 void deleteTree(TreeNode * root);
 void inorder_iter(TreeNode * root);
 void postorder_iter(TreeNode * root);
-//int is_exp(char *String);
+int is_exp(char *String);
 
 //함수 원형 정의부 끝
 
@@ -75,8 +75,9 @@ int main() {
 		printf("입력한 중위식 : %s\n", String); //입력한 중위식 출력
 
 		char *posted = postfix(String); //입력받은 중위식을 후위식으로 변환한다.
-		TreeNode *root = createRoot(posted); //기술한 알고리즘 토대로 root 를 만든 후 반환한다. > 후위 표기법으로부터 수식 트리 생성
 		printf("변환된 후위식 : %s\n", posted);//변환된 후위식 출력
+		TreeNode *root = createRoot(posted); //기술한 알고리즘 토대로 root 를 만든 후 반환한다. > 후위 표기법으로부터 수식 트리 생성
+
 
 		printf("반복 버전 중위 순회 결과 : ");
 		inorder_iter(root); //트리 중위 순회
@@ -101,6 +102,8 @@ int main() {
 	return 0;
 
 }
+
+
 
 
 
@@ -156,6 +159,8 @@ int pis(char sym) { //스택 안에서 순위 검사
 	}
 	return -1;
 }
+
+
 int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 리턴값이 바뀐것을 볼 수 있다.
 	switch (sym) { //스택 밖에서 순위 검사
 	case '(': return 3;  //여는 괄호가 두번째
@@ -166,6 +171,8 @@ int pie(char sym) { //잘 보면 59 번 60번 라인과 68번 69번 라인의 �
 	}
 	return -1;
 }
+
+
 char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 함수
 	Stack stack; //후위식 변환을 위해 스택 사용
 	initStack(&stack);
@@ -214,6 +221,8 @@ char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 �
 	}
 	return temp;
 }
+
+
 int is_sign_String(char *sign) { //문자열이 부호인지 확인
 	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^") && strcmp(sign, "%") != 0); //부호가 아니면 0 
 	//부호면 1 반환
@@ -222,15 +231,13 @@ int is_sign_String(char *sign) { //문자열이 부호인지 확인
 int is_sign_char(char sym) { //문자가 부호인지 확인
 	return (sym == '+' || sym == '-' || sym == '*' || sym == '/' || sym == '^' || sym == '%'); //부호면 1 부호가 아니면 0 반환
 }
-
-
 int is_exp(char *String) { //수식이 올바른지 확인하는 함수
 	int size = strlen(String); //strlen 함수를 사용해서 문자열의 크기를 구한다
 	if (size <= 0) { //문자열의 크기가 0이면
 		return 0; //0반환
 	}
 	char lastsym = String[size - 1]; //마지막 문자열은 스트링의 길이 - 1 번째 인덱스
-	if (is_sign_char(lastsym) || is_sign_char(String[0]) ){ //처음 또는 마지막 문자가 부호면
+	if (is_sign_char(lastsym) || is_sign_char(String[0])) { //처음 또는 마지막 문자가 부호면
 		// + 6 * 꼴이므로 변환불가
 		return 0; //0반환
 	}
@@ -241,7 +248,7 @@ int is_exp(char *String) { //수식이 올바른지 확인하는 함수
 	char temp; //임시로 사용할 char 변수, if 문에 사용된다.
 
 
-	for (int i = 0; i < size; i++){ //문자열의 길이만큼 반복한다
+	for (int i = 0; i < size; i++) { //문자열의 길이만큼 반복한다
 		temp = String[i];
 		if (is_empty(stack) && temp == ')') { //스택이 빈 상황인데 ) 가 들어가면 스택은 ) 꼴이 된다.
 			return 0;	//이는 곧 맞지 않은 괄호쌍을 의미하기에 false 로 만든다.
@@ -252,7 +259,7 @@ int is_exp(char *String) { //수식이 올바른지 확인하는 함수
 			pop(&stack); //스택엔 (....(( 꼴로 저장되어있기에 마지막 ( 를 지운다 
 			//(....( 이런식으로 말이다.
 		}
-		else if(temp == '('){
+		else if (temp == '(') {
 			push(&stack, temp); //( 이 들어오는 경우는 항상 스택에 저장한다.
 		}
 
@@ -280,6 +287,7 @@ void *setLeft(TreeNode *root, TreeNode *left) { //왼쪽 자식 노드를 설정
 void *setRight(TreeNode *root, TreeNode *right) { //오른쪽 자식 노드를 설정하는 함수
 	root->right = right; //받아온 root 의 right 필드를 받아온 right 포인터로 설정
 }
+
 
 TreeNode* createRoot(char* String) {
 	/*
@@ -318,7 +326,6 @@ TreeNode* createRoot(char* String) {
 	return (TreeNode *)pop(&stack); //while 문이 끝나면 루트 노드만 남아있으므로 pop 을 하여 루트 노드 반환
 	//스택 반환값이 달라서 TreeNode 형변환
 }
-
 
 void inorder(TreeNode *root) { //중위 탐색, 좌노드 루트노드 우노드 순 방문
 	if (root != NULL) {
@@ -372,6 +379,7 @@ void deleteTree(TreeNode *root) { //후위 탐색 알고리즘을 이용하여 �
 	}
 }
 
+
 void inorder_iter(TreeNode *root) {
 	TreeNode *curr = root;
 	Stack s;
@@ -401,6 +409,7 @@ void inorder_iter(TreeNode *root) {
 }
 
 
+
 void postorder_iter(TreeNode *root) {
 	TreeNode *curr = root;
 	Stack s;
@@ -408,10 +417,8 @@ void postorder_iter(TreeNode *root) {
 	initStack(stack);
 	TreeNode *visited = NULL;
 	while (1) {
-
 		if (curr  && curr != visited) { //현재 노드가 NULL 이 아니고 방문되지 않은것이면
 			push(stack, curr); //curr 을 스택에 넣는다.
-
 			//후위 탐색은 좌측 우측 루트 이렇게 출력된다.
 			//스택은 먼저 들어간게 마지막에 나오므로 후위 탐색을 진행할려면
 			//루트 우측 좌측 노드 이렇게 삽입을 해야한다.
@@ -447,7 +454,7 @@ void postorder_iter(TreeNode *root) {
 				if (is_leaf(curr)) { //잎노드만 숫자를 가지고 있으므로
 					printf("[%d]", curr->data); //숫자 출력
 				}
-				else { //잎노드가 아닌 경우 그냥 데이터 출력
+				else { //잎노드가 아닌 경우 문자로 데이터 출력
 					printf("[%c]", curr->data);
 				}
 				//현재 노드를 완료된 노드로 설정
