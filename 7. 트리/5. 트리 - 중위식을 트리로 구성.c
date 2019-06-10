@@ -25,7 +25,7 @@ element peek(Stack stack);
 int pis(char sym);
 int pie(char sym);
 char * postfix(char * String);
-int is_sign(char * sign);
+int is_sign_String(char * sign);
 TreeNode * createNode();
 void * setData(TreeNode * root, int data);
 void * setLeft(TreeNode * root, TreeNode * left);
@@ -37,6 +37,7 @@ int eval(TreeNode * root);
 void deleteTree(TreeNode * root);
 void inorder_iter(TreeNode * root);
 void postorder_iter(TreeNode * root);
+//int is_exp(char *String);
 
 //함수 원형 정의부 끝
 
@@ -62,6 +63,15 @@ int main() {
 
 		printf("중위식을 입력하세요 : ");
 		scanf("%s", String);//수식 입력 (중위식)
+
+		if (!is_exp(String)) { //올바르지 않은 수식이면
+			printf("잘못된 수식입니다.\n"); //오류를 출력하고
+			printf("========================\n");
+			printf("다시 수행하시겠습니까? (1. 예, 기타. 아니오) : ");
+
+			scanf("%d", &restart);//다시 계산할지확인을 한다. 1을 입력하면 재시작
+			continue; //continue 를 사용하여 다음 while 문 수행
+		}
 		printf("입력한 중위식 : %s\n", String); //입력한 중위식 출력
 
 		char *posted = postfix(String); //입력받은 중위식을 후위식으로 변환한다.
@@ -204,10 +214,55 @@ char* postfix(char *String) { //후위로 변환된 스트링을 반환하는 �
 	}
 	return temp;
 }
-int is_sign(char *sign) {
+int is_sign_String(char *sign) { //문자열이 부호인지 확인
 	return !(strcmp(sign, "+") != 0 && strcmp(sign, "-") != 0 && strcmp(sign, "/") != 0 && strcmp(sign, "*") != 0 && strcmp(sign, "^") && strcmp(sign, "%") != 0); //부호가 아니면 0 
 	//부호면 1 반환
 }
+
+int is_sign_char(char sym) { //문자가 부호인지 확인
+	return (sym == '+' || sym == '-' || sym == '*' || sym == '/' || sym == '^' || sym == '%'); //부호면 1 부호가 아니면 0 반환
+}
+
+
+int is_exp(char *String) { //수식이 올바른지 확인하는 함수
+	int size = strlen(String); //strlen 함수를 사용해서 문자열의 크기를 구한다
+	if (size <= 0) { //문자열의 크기가 0이면
+		return 0; //0반환
+	}
+	char lastsym = String[size - 1]; //마지막 문자열은 스트링의 길이 - 1 번째 인덱스
+	if (is_sign_char(lastsym) || is_sign_char(String[0]) ){ //처음 또는 마지막 문자가 부호면
+		// + 6 * 꼴이므로 변환불가
+		return 0; //0반환
+	}
+	//문자열의 앞과 뒤 확인했으면 괄호쌍 확인
+
+	Stack stack; //확인을 위해선 스택이 필요하기 때문에 스택을 생성한다.
+	initStack(&stack); //생성한 스택을 초기화한다.
+	char temp; //임시로 사용할 char 변수, if 문에 사용된다.
+
+
+	for (int i = 0; i < size; i++){ //문자열의 길이만큼 반복한다
+		temp = String[i];
+		if (is_empty(stack) && temp == ')') { //스택이 빈 상황인데 ) 가 들어가면 스택은 ) 꼴이 된다.
+			return 0;	//이는 곧 맞지 않은 괄호쌍을 의미하기에 false 로 만든다.
+			//break; //더이상 볼 가치가 없으므로 루프를 종료한다.
+		}
+		if (temp == ')') { //위의 if 문이 수행이 안되므로 해당 라인은 수행이된다.
+			//들어온 값이 ) 경우
+			pop(&stack); //스택엔 (....(( 꼴로 저장되어있기에 마지막 ( 를 지운다 
+			//(....( 이런식으로 말이다.
+		}
+		else if(temp == '('){
+			push(&stack, temp); //( 이 들어오는 경우는 항상 스택에 저장한다.
+		}
+
+	}
+	if (!is_empty(stack)) {
+		return 0; //스택에 값이 있으면 올바르지않은 수식 
+	}
+	return 1; //위에서 모든 식에서  return 이 수행 안됬으면 올바른 수식이므로 1 반환
+}
+
 
 TreeNode *createNode() { //노드를생성하는 함수
 	TreeNode *temp = (TreeNode *)malloc(sizeof(TreeNode)); //노드 동적 생성
@@ -216,7 +271,7 @@ TreeNode *createNode() { //노드를생성하는 함수
 	temp->right = NULL;
 	return temp; //생성된 temp 포인터 반환
 }
-void *setData(TreeNode *root,int data) { //데이터를 설정 하는 함수
+void *setData(TreeNode *root, int data) { //데이터를 설정 하는 함수
 	root->data = data; //받아온 root 의 data 필드를 받아온 data 로 설정
 }
 void *setLeft(TreeNode *root, TreeNode *left) { //왼쪽 자식 노드를 설정하는 함수
@@ -246,7 +301,7 @@ TreeNode* createRoot(char* String) {
 	char *split = strtok(String, " "); //입력받아온 String 은 공백을 기준으로 분리해야 하므로 공백 기준으로 분리
 	while (split != NULL) { //split 포인터가 NULL 이 아닐때 까지 반복
 		node = createNode(); //빈 노드를 생성한다
-		if (!is_sign(split)) { //split 포인터 즉, 문자열이 부호가 아니면
+		if (!is_sign_String(split)) { //split 포인터 즉, 문자열이 부호가 아니면
 			int data = atoi(split); //그 값은 숫자이므로 atoi 함수로 숫자 추출
 			setData(node, data);
 			//node->data = data; //추출된 숫자를 node 의 data 로 할당
@@ -274,7 +329,7 @@ void inorder(TreeNode *root) { //중위 탐색, 좌노드 루트노드 우노드
 		else {
 			printf("[%d]", root->data); //잎노드면 숫자 출력
 		}
-		inorder(root->right); 
+		inorder(root->right);
 	}
 }
 int is_leaf(TreeNode *root) { //잎노드인지 판별
