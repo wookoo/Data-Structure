@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,48 +16,44 @@ int is_empty(ListNode *node) {
 
 void printNode(ListNode *node) {
 
-	ListNode* temp = node;
+	if (node == NULL) return;
+
+	ListNode* temp = node->next;
 	do {
-		if (node == NULL) return;
+		
 		printf("%d->", temp->val);
 		temp = temp->next;
 
 	} while (temp != node);
+	printf("%d->", temp->val);
 	printf("\n");
 
 }
 
 ListNode* insert_first(ListNode *head, element data) {
-	ListNode *p = (ListNode *)malloc(sizeof(ListNode));
-	p->val = data;
-	p->next = head;
+	ListNode *node = (ListNode *)malloc(sizeof(ListNode));
+	node->val = data;
 	if (head == NULL) {
-		p->next = p;
-		return p;
+		node->next = node;
+		return node;
 	}
-	ListNode *last = head;
+	node->next = head->next;
+	head->next = node;
 	
-	while (last->next != head) {
-		last = last->next;
-	}
-
-	head = p;
-	last->next = p;
 	return head;
 }
 
 
 ListNode* delete_first(ListNode *head) {
-	ListNode *remove = head;
-	if (head == NULL) return NULL;
-	head = head->next;
-	ListNode *last = head;
-
-	while (last->next != remove) {
-		last = last->next;
+	if (head == head->next) {
+		free(head);
+		return NULL;
 	}
-	last->next = head;
+
+	ListNode *remove = head->next;
+	head->next = remove->next;
 	free(remove);
+
 	return head;
 }
 
@@ -66,15 +61,16 @@ ListNode* delete_first(ListNode *head) {
 
 
 ListNode* insert_last(ListNode *head, element data) {
-	ListNode *last = head;
-
-	while (last->next != head) {
-		last = last->next;
+	
+	ListNode *node = (ListNode *)malloc(sizeof(ListNode));
+	node->val = data;
+	if (head == NULL) {
+		node->next = node;
+		return node;
 	}
-	ListNode *Node = (ListNode *)malloc(sizeof(ListNode));
-	Node->next = head;
-	Node->val = data;
-	last->next = Node;
+	node->next = head->next;
+	head->next = node;
+	head = node;
 	return head;
 }
 
